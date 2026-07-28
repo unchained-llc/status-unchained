@@ -1,8 +1,10 @@
 export const visibleSystems = [
-  { token: '0f71', name: 'Corporate Website' },
-  { token: '1wbc', name: 'UCID Authentication' },
-  { token: 'sumd', name: 'Infrastructure Monitoring' },
-  { token: 'je6a', name: 'Certificate Issuance' },
+  { token: '0f71', name: 'Corporate Web' },
+  { token: '1wbc', name: 'UCID Identity' },
+  { token: 'je6a', name: 'Certificate Authority' },
+  { token: 'sumd', name: 'Infrastructure Operations' },
+  { token: '5gqg', name: 'Network Continuity' },
+  { token: 'u13g', name: 'Data Protection' },
 ] as const;
 
 export const visibleCheckTokens = visibleSystems.map(({ token }) => token);
