@@ -1,6 +1,6 @@
 export const visibleSystems = [
   { token: '0f71', name: 'Corporate Web' },
-  { token: '1wbc', name: 'UCID Identity' },
+  { token: '1wbc', name: 'Identity & Authentication' },
   { token: 'je6a', name: 'Certificate Authority' },
   { token: 'sumd', name: 'Infrastructure Operations' },
   { token: '5gqg', name: 'Network Continuity' },
