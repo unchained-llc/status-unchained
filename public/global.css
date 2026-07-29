@@ -205,7 +205,8 @@
 
 /* today defaults to operational unless live row state says otherwise */
 .status-page .history-day.is-today{background:color-mix(in srgb,var(--success),white 12%)!important;opacity:.72!important}
-.status-page .history-day:hover,.status-page .history-day:focus-visible,.status-page .history-day.is-active{opacity:1;animation:none!important;filter:none!important}
+.status-page .history-day:hover,.status-page .history-day:focus-visible{opacity:1;filter:none!important}
+.status-page .history-day.is-active{opacity:1;filter:none!important}
 .status-page .history-day .history-marker{position:absolute;left:50%;top:50%;display:none;width:.5rem;height:.5rem;transform:translate(-50%,-50%);z-index:2;opacity:0;pointer-events:none;border:2px solid rgba(255,255,255,.94);border-radius:50%!important;clip-path:none!important;background:var(--status-operational);box-shadow:0 0 0 1px color-mix(in srgb,var(--line),transparent 25%),0 0 0 6px color-mix(in srgb,var(--status-operational),transparent 82%);transition:opacity 100ms ease,transform 100ms ease}
 .status-page .history-day.has-event .history-marker{display:block}
 .status-page .history-day.marker-maintenance .history-marker{background:var(--status-maintenance);box-shadow:0 0 0 1px color-mix(in srgb,var(--line),transparent 25%),0 0 0 6px color-mix(in srgb,var(--status-maintenance),transparent 82%)}
@@ -278,7 +279,7 @@
 .status-page .history-day.has-multiple .history-marker-multi{display:none!important}
 
 @media(max-width:38rem){
-  .status-page .history-card{left:1rem!important;right:1rem;max-width:none;min-width:unset;bottom:calc(1rem + env(safe-area-inset-bottom));top:auto;padding:12px}
+  .status-page .history-card{position:absolute!important;left:50%!important;right:auto!important;transform:translateX(-50%);top:calc(100% + .72rem)!important;bottom:auto!important;width:calc(100vw - 2rem)!important;max-width:calc(100vw - 2rem)!important;min-width:unset!important;box-sizing:border-box;padding:12px}
   .status-page .history-card-date{font-size:14px}
   .status-page .history-card-title{font-size:16px}
   .status-page .history-card-meta-line{font-size:13px}
