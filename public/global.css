@@ -207,11 +207,11 @@
 .status-page .history-day.is-today{background:color-mix(in srgb,var(--success),white 12%)!important;opacity:.72!important}
 .status-page .history-day:hover,.status-page .history-day:focus-visible{opacity:1;filter:none!important}
 .status-page .history-day.is-active{opacity:1;filter:none!important}
-.status-page .history-day .history-marker{position:absolute;left:50%;top:50%;display:block;width:.5rem;height:.5rem;transform:translate(-50%,-50%);z-index:2;opacity:0;pointer-events:none;border:2px solid rgba(255,255,255,.94);border-radius:50%!important;clip-path:none!important;background:var(--status-operational);box-shadow:0 0 0 1px color-mix(in srgb,var(--line),transparent 25%),0 0 0 6px color-mix(in srgb,var(--status-operational),transparent 82%);transition:opacity 100ms ease,transform 100ms ease}
-.status-page .history-day.marker-maintenance .history-marker{background:var(--status-maintenance);box-shadow:0 0 0 1px color-mix(in srgb,var(--line),transparent 25%),0 0 0 6px color-mix(in srgb,var(--status-maintenance),transparent 82%)}
-.status-page .history-day.marker-degraded .history-marker{background:var(--status-outage);box-shadow:0 0 0 1px color-mix(in srgb,var(--line),transparent 25%),0 0 0 6px color-mix(in srgb,var(--status-outage),transparent 82%)}
-.status-page .history-day.marker-outage .history-marker{background:var(--status-outage);box-shadow:0 0 0 1px color-mix(in srgb,var(--line),transparent 25%),0 0 0 6px color-mix(in srgb,var(--status-outage),transparent 82%)}
-.status-page .history-day.had-downtime .history-marker{background:var(--status-outage)!important;box-shadow:0 0 0 1px color-mix(in srgb,var(--line),transparent 25%),0 0 0 6px color-mix(in srgb,var(--status-outage),transparent 82%)!important}
+.status-page .history-day .history-marker{position:absolute;left:50%;top:50%;display:block;width:1rem;height:1rem;transform:translate(-50%,-50%);z-index:2;opacity:0;pointer-events:none;border:2px solid rgba(255,255,255,.94);border-radius:50%!important;clip-path:none!important;background:var(--status-operational);box-shadow:0 0 0 1px color-mix(in srgb,var(--line),transparent 25%),0 0 0 10px color-mix(in srgb,var(--status-operational),transparent 82%);transition:opacity 100ms ease,transform 100ms ease}
+.status-page .history-day.marker-maintenance .history-marker{background:var(--status-maintenance);box-shadow:0 0 0 1px color-mix(in srgb,var(--line),transparent 25%),0 0 0 10px color-mix(in srgb,var(--status-maintenance),transparent 82%)}
+.status-page .history-day.marker-degraded .history-marker{background:var(--status-outage);box-shadow:0 0 0 1px color-mix(in srgb,var(--line),transparent 25%),0 0 0 10px color-mix(in srgb,var(--status-outage),transparent 82%)}
+.status-page .history-day.marker-outage .history-marker{background:var(--status-outage);box-shadow:0 0 0 1px color-mix(in srgb,var(--line),transparent 25%),0 0 0 10px color-mix(in srgb,var(--status-outage),transparent 82%)}
+.status-page .history-day.had-downtime .history-marker{background:var(--status-outage)!important;box-shadow:0 0 0 1px color-mix(in srgb,var(--line),transparent 25%),0 0 0 10px color-mix(in srgb,var(--status-outage),transparent 82%)!important}
 .status-page .history-day:hover .history-marker,
 .status-page .history-day:focus-visible .history-marker,
 .status-page .history-day.is-active .history-marker{opacity:1;transform:translate(-50%,-50%) scale(1.04)}
@@ -224,12 +224,13 @@
 .status-page .service-row.is-maintenance .history-day.is-today{background:var(--status-maintenance)!important;opacity:.88!important}
 .status-page .service-row.is-maintenance .history-day.is-today:nth-child(7){animation:maintenance-breathe 2s ease-in-out infinite!important;box-shadow:0 0 8px color-mix(in srgb,var(--status-maintenance),transparent 46%),0 0 14px color-mix(in srgb,var(--status-maintenance),transparent 68%)!important}
 .status-page .service-row.is-down .history-day.is-today{background:var(--status-outage)!important;opacity:1!important}
-.status-page .service-row.is-down .history-day.is-today:nth-child(7){animation:none!important;box-shadow:0 0 10px color-mix(in srgb,var(--status-outage),transparent 42%),0 0 18px color-mix(in srgb,var(--status-outage),transparent 64%)!important}
+.status-page .service-row.is-down .history-day:nth-child(7){animation:outage-alert 1s steps(1,end) infinite!important;box-shadow:0 0 10px color-mix(in srgb,var(--status-outage),transparent 42%),0 0 18px color-mix(in srgb,var(--status-outage),transparent 64%)!important}
+@keyframes outage-alert{0%,49%{opacity:1}50%,100%{opacity:.24}}
 
 /* keep LED blinking while marker stays steady */
 .status-page .history-day:nth-child(7){--today-led-animation:meter-random .5s steps(1,end) infinite}
 .status-page .service-row.is-maintenance .history-day:nth-child(7){--today-led-animation:maintenance-breathe 2s ease-in-out infinite}
-.status-page .service-row.is-down .history-day:nth-child(7){--today-led-animation:none}
+.status-page .service-row.is-down .history-day:nth-child(7){--today-led-animation:outage-alert 1s steps(1,end) infinite}
 .status-page .history-day:nth-child(7):hover,
 .status-page .history-day:nth-child(7):focus-visible,
 .status-page .history-day:nth-child(7).is-active{animation:none!important}
@@ -238,9 +239,9 @@
 .status-page .history-day:nth-child(7).is-active::before{content:'';position:absolute;inset:0;border-radius:inherit;background:inherit;animation:var(--today-led-animation);pointer-events:none;z-index:1}
 
 /* marker color follows LIVE LED state on today slot (7th) */
-.status-page .service-row.is-up .history-day:nth-child(7) .history-marker{background:var(--status-operational)!important;box-shadow:0 0 0 1px color-mix(in srgb,var(--line),transparent 25%),0 0 0 6px color-mix(in srgb,var(--status-operational),transparent 82%)!important}
-.status-page .service-row.is-maintenance .history-day:nth-child(7) .history-marker{background:var(--status-maintenance)!important;box-shadow:0 0 0 1px color-mix(in srgb,var(--line),transparent 25%),0 0 0 6px color-mix(in srgb,var(--status-maintenance),transparent 82%)!important}
-.status-page .service-row.is-down .history-day:nth-child(7) .history-marker{background:var(--status-outage)!important;box-shadow:0 0 0 1px color-mix(in srgb,var(--line),transparent 25%),0 0 0 6px color-mix(in srgb,var(--status-outage),transparent 82%)!important}
+.status-page .service-row.is-up .history-day:nth-child(7) .history-marker{background:var(--status-operational)!important;box-shadow:0 0 0 1px color-mix(in srgb,var(--line),transparent 25%),0 0 0 10px color-mix(in srgb,var(--status-operational),transparent 82%)!important}
+.status-page .service-row.is-maintenance .history-day:nth-child(7) .history-marker{background:var(--status-maintenance)!important;box-shadow:0 0 0 1px color-mix(in srgb,var(--line),transparent 25%),0 0 0 10px color-mix(in srgb,var(--status-maintenance),transparent 82%)!important}
+.status-page .service-row.is-down .history-day:nth-child(7) .history-marker{background:var(--status-outage)!important;box-shadow:0 0 0 1px color-mix(in srgb,var(--line),transparent 25%),0 0 0 10px color-mix(in srgb,var(--status-outage),transparent 82%)!important}
 
 .status-page .history-wrap.has-history-card::before{left:var(--card-anchor-x,50%);transform:translateX(-50%);top:var(--card-anchor-y,.45rem);height:var(--card-connector-h,12px);opacity:.78;background:color-mix(in srgb,var(--status-operational),transparent 22%)}
 .status-page .history-wrap.has-history-card[data-active-marker="maintenance"]::before{background:color-mix(in srgb,var(--status-maintenance),transparent 22%)}
@@ -288,6 +289,12 @@
 .status-page .history-dayline-now .dot{display:block;width:.86rem;height:.86rem;border-radius:50%;background:rgba(255,255,255,.96);border:2px solid color-mix(in srgb,var(--status-operational),white 20%);box-shadow:0 0 0 1px color-mix(in srgb,var(--line),transparent 30%),0 0 10px color-mix(in srgb,var(--status-operational),transparent 60%)}
 .status-page .history-dayline-now .stem{position:absolute;left:50%;top:100%;width:1px;height:14px;transform:translateX(-50%);background:color-mix(in srgb,var(--status-operational),transparent 20%)}
 .status-page .history-dayline-now .label{position:absolute;left:50%;top:calc(100% + 14px);transform:translateX(-50%);font-size:10px;font-weight:600;color:color-mix(in srgb,var(--text),transparent 20%);font-variant-numeric:tabular-nums;white-space:nowrap}
+.status-page .history-dayline-now.is-maintenance .dot{border-color:color-mix(in srgb,var(--status-maintenance),white 20%);box-shadow:0 0 0 1px color-mix(in srgb,var(--line),transparent 30%),0 0 10px color-mix(in srgb,var(--status-maintenance),transparent 60%)}
+.status-page .history-dayline-now.is-maintenance .stem{background:color-mix(in srgb,var(--status-maintenance),transparent 20%)}
+.status-page .history-dayline-now.is-maintenance .label{color:color-mix(in srgb,var(--status-maintenance),var(--text) 35%)}
+.status-page .history-dayline-now.is-outage .dot{border-color:color-mix(in srgb,var(--status-outage),white 20%);box-shadow:0 0 0 1px color-mix(in srgb,var(--line),transparent 30%),0 0 10px color-mix(in srgb,var(--status-outage),transparent 60%)}
+.status-page .history-dayline-now.is-outage .stem{background:color-mix(in srgb,var(--status-outage),transparent 20%)}
+.status-page .history-dayline-now.is-outage .label{color:color-mix(in srgb,var(--status-outage),var(--text) 35%)}
 
 .status-page .history-dayline-legend,
 .status-page .history-card-right,

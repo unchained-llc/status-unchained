@@ -378,7 +378,7 @@ const dateFmt = (s: string) => new Intl.DateTimeFormat('en', { month: 'short', d
 
       const positionCard=(wrap:HTMLElement,btn:HTMLButtonElement,card:HTMLElement)=>{if(isMobileView()){card.style.removeProperty('left');card.style.removeProperty('--card-arrow');wrap.style.removeProperty('--card-anchor-x');wrap.style.removeProperty('--card-anchor-y');wrap.style.removeProperty('--card-connector-h');return}const wrapRect=wrap.getBoundingClientRect();const refRect=btn.getBoundingClientRect();const centerX=refRect.left-wrapRect.left+refRect.width/2;const anchorY=refRect.bottom-wrapRect.top;const width=card.offsetWidth||360;const maxLeft=Math.max(0,wrapRect.width-width);const left=Math.min(maxLeft,Math.max(0,centerX-width/2));const arrow=Math.min(width-14,Math.max(14,centerX-left));card.style.left=`${left}px`;card.style.setProperty('--card-arrow',`${arrow}px`);wrap.style.setProperty('--card-anchor-x',`${centerX}px`);wrap.style.setProperty('--card-anchor-y',`${anchorY}px`);const connectorH=Math.max(10,card.offsetTop-anchorY-2);wrap.style.setProperty('--card-connector-h',`${connectorH}px`)}
 
-      const renderCard=(wrap:HTMLElement,btn:HTMLButtonElement,payload:DayPayload,locked:boolean)=>{if(activeWrap&&activeWrap!==wrap)closeActiveCard();const card=wrap.querySelector<HTMLElement>('.history-card');if(!card)return;card.replaceChildren();
+      const renderCard=(wrap:HTMLElement,btn:HTMLButtonElement,payload:DayPayload,locked:boolean)=>{if(activeWrap&&activeWrap!==wrap)closeActiveCard();const card=wrap.querySelector<HTMLElement>('.history-card');if(!card)return;card.replaceChildren();const row=wrap.closest<HTMLElement>('.service-row');const liveMarker=row?.classList.contains('is-down')?'outage':row?.classList.contains('is-maintenance')?'maintenance':'operational';
 
         const dateEl=document.createElement('p');dateEl.className='history-card-date';dateEl.textContent=payload.date;card.append(dateEl)
 
@@ -389,7 +389,7 @@ const dateFmt = (s: string) => new Intl.DateTimeFormat('en', { month: 'short', d
 
         if(payload.events.length>0){
           const labels=document.createElement('div');labels.className='history-dayline-labels';['00','06','12','18','24'].forEach(text=>{const node=document.createElement('span');node.textContent=text;labels.append(node)});card.append(labels)
-          const rail=document.createElement('div');rail.className='history-dayline-rail';const progressPct=dayTimelineProgressPct(payload.date);const base=document.createElement('span');base.className='history-dayline-base';rail.append(base);const progress=document.createElement('span');progress.className='history-dayline-progress';progress.style.width=`${progressPct}%`;rail.append(progress);[25,50,75].forEach(v=>{const tick=document.createElement('span');tick.className='history-dayline-tick';tick.style.left=`${v}%`;rail.append(tick)});dayTimelineRanges(payload.date,payload.events).forEach(range=>{const seg=document.createElement('span');seg.className=`history-dayline-highlight is-${range.status}`;seg.style.left=`${range.startPct}%`;seg.style.width=`${Math.max(1.2,range.endPct-range.startPct)}%`;rail.append(seg)});if(payload.date===dayKey(new Date())){const now=document.createElement('span');now.className='history-dayline-now';now.style.left=`${progressPct}%`;now.innerHTML='<span class="dot"></span><span class="stem"></span><span class="label">Now</span>';rail.append(now)}card.append(rail)
+          const rail=document.createElement('div');rail.className='history-dayline-rail';const progressPct=dayTimelineProgressPct(payload.date);const base=document.createElement('span');base.className='history-dayline-base';rail.append(base);const progress=document.createElement('span');progress.className='history-dayline-progress';progress.style.width=`${progressPct}%`;rail.append(progress);[25,50,75].forEach(v=>{const tick=document.createElement('span');tick.className='history-dayline-tick';tick.style.left=`${v}%`;rail.append(tick)});dayTimelineRanges(payload.date,payload.events).forEach(range=>{const seg=document.createElement('span');seg.className=`history-dayline-highlight is-${range.status}`;seg.style.left=`${range.startPct}%`;seg.style.width=`${Math.max(1.2,range.endPct-range.startPct)}%`;rail.append(seg)});if(payload.date===dayKey(new Date())){const now=document.createElement('span');now.className=`history-dayline-now is-${liveMarker}`;now.style.left=`${progressPct}%`;now.innerHTML='<span class="dot"></span><span class="stem"></span><span class="label">Now</span>';rail.append(now)}card.append(rail)
         }
 
         wrap.querySelectorAll<HTMLButtonElement>('.history-day').forEach(node=>{node.setAttribute('aria-expanded','false');node.classList.remove('is-active')})
@@ -397,9 +397,7 @@ const dateFmt = (s: string) => new Intl.DateTimeFormat('en', { month: 'short', d
         const pending=hideTimers.get(card);if(pending)window.clearTimeout(pending)
         card.hidden=false
         wrap.classList.add('has-history-card')
-        const row=wrap.closest<HTMLElement>('.service-row')
         const isTodaySlot=btn.parentElement?.lastElementChild===btn
-        const liveMarker=row?.classList.contains('is-down')?'outage':row?.classList.contains('is-maintenance')?'maintenance':'operational'
         wrap.dataset.activeMarker=isTodaySlot?liveMarker:(btn.classList.contains('had-downtime')?'outage':payload.marker)
         if(locked)wrap.classList.add('is-locked');else wrap.classList.remove('is-locked')
         positionCard(wrap,btn,card)
