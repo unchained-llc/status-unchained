@@ -346,7 +346,7 @@ const dateFmt = (s: string) => new Intl.DateTimeFormat('en', { month: 'short', d
       const page=document.querySelector<HTMLElement>('.status-page')
       const services=document.querySelector<HTMLElement>('.services')
       const eventsByToken:Record<string,StatusEvent[]>={}
-      const isMobileView=()=>window.matchMedia('(hover: none), (pointer: coarse)').matches
+      const isMobileView=()=>{const touchOnly=window.matchMedia('(hover: none) and (pointer: coarse)').matches;const hasHoverCapablePointer=window.matchMedia('(any-hover: hover) and (any-pointer: fine)').matches;return touchOnly&&!hasHoverCapablePointer}
 
       const rel=(value:string|Date)=>{const date=value instanceof Date?value:new Date(value);const seconds=Math.round((date.getTime()-Date.now())/1000);const formatter=new Intl.RelativeTimeFormat('en',{numeric:'auto'});const units:Array<[Intl.RelativeTimeFormatUnit,number]>=[['year',31536000],['month',2592000],['day',86400],['hour',3600],['minute',60],['second',1]];const [unit,amount]=units.find(([,amount])=>Math.abs(seconds)>=amount)??units.at(-1)!;return formatter.format(Math.round(seconds/amount),unit)}
       const formatUptime=(value:number)=>Number.isFinite(value)?`${value.toFixed(value===100?0:2)}%`:'—'
