@@ -76,9 +76,8 @@ import Icon from "./Icon.astro";
             const button = this.querySelector("button")!;
 
             const applyThemeState = (dark: boolean, source: "user" | "os") => {
-                document.documentElement.classList[dark ? "add" : "remove"](
-                    "theme-dark",
-                );
+                document.documentElement.classList.toggle("theme-dark", dark);
+                document.documentElement.classList.toggle("theme-light", !dark);
                 document.documentElement.dataset.theme = dark
                     ? "dark"
                     : "light";
