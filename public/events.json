@@ -1,6 +1,22 @@
 {
-  "generated_at": "2026-07-29T03:12:50.216Z",
+  "generated_at": "2026-07-29T06:48:57.433Z",
   "events": [
+    {
+      "token": "u13g",
+      "alias": "Data Protection",
+      "from": "maintenance",
+      "to": "operational",
+      "type": "maintenance_ended",
+      "at": "2026-07-29T06:48:57.433Z"
+    },
+    {
+      "token": "u13g",
+      "alias": "Data Protection",
+      "from": "operational",
+      "to": "maintenance",
+      "type": "maintenance_started",
+      "at": "2026-07-29T06:46:44.348Z"
+    },
     {
       "token": "u13g",
       "alias": "Data Protection",
@@ -413,7 +429,7 @@
       "token": "u13g",
       "alias": "Data Protection",
       "state": "operational",
-      "recorded_at": "2026-07-29T03:12:50.216Z"
+      "recorded_at": "2026-07-29T06:48:57.433Z"
     }
   }
 }

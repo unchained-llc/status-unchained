@@ -219,12 +219,9 @@
 .status-page .history-day.had-downtime:nth-child(7){box-shadow:0 0 10px color-mix(in srgb,var(--status-outage),transparent 42%),0 0 18px color-mix(in srgb,var(--status-outage),transparent 64%)}
 
 /* today LED follows live status, not historical marker */
-.status-page .service-row.is-up .history-day.is-today{background:color-mix(in srgb,var(--success),white 12%)!important;opacity:.72!important}
-.status-page .service-row.is-up .history-day.is-today:nth-child(7){background:color-mix(in srgb,var(--success),white 12%)!important;animation:meter-random .5s steps(1,end) infinite!important;box-shadow:0 0 8px color-mix(in srgb,var(--success),transparent 46%),0 0 14px color-mix(in srgb,var(--success),transparent 68%)!important}
-.status-page .service-row.is-maintenance .history-day.is-today{background:var(--status-maintenance)!important;opacity:.88!important}
-.status-page .service-row.is-maintenance .history-day.is-today:nth-child(7){animation:maintenance-breathe 2s ease-in-out infinite!important;box-shadow:0 0 8px color-mix(in srgb,var(--status-maintenance),transparent 46%),0 0 14px color-mix(in srgb,var(--status-maintenance),transparent 68%)!important}
-.status-page .service-row.is-down .history-day.is-today{background:var(--status-outage)!important;opacity:1!important}
-.status-page .service-row.is-down .history-day:nth-child(7){animation:outage-alert 1s steps(1,end) infinite!important;box-shadow:0 0 10px color-mix(in srgb,var(--status-outage),transparent 42%),0 0 18px color-mix(in srgb,var(--status-outage),transparent 64%)!important}
+.status-page .service-row.is-up .history-day:nth-child(7){background:color-mix(in srgb,var(--success),white 12%)!important;opacity:.72!important;animation:meter-random .5s steps(1,end) infinite!important;box-shadow:0 0 8px color-mix(in srgb,var(--success),transparent 46%),0 0 14px color-mix(in srgb,var(--success),transparent 68%)!important}
+.status-page .service-row.is-maintenance .history-day:nth-child(7){background:var(--status-maintenance)!important;opacity:.88!important;animation:maintenance-breathe 2s ease-in-out infinite!important;box-shadow:0 0 8px color-mix(in srgb,var(--status-maintenance),transparent 46%),0 0 14px color-mix(in srgb,var(--status-maintenance),transparent 68%)!important}
+.status-page .service-row.is-down .history-day:nth-child(7){background:var(--status-outage)!important;opacity:1!important;animation:outage-alert 1s steps(1,end) infinite!important;box-shadow:0 0 10px color-mix(in srgb,var(--status-outage),transparent 42%),0 0 18px color-mix(in srgb,var(--status-outage),transparent 64%)!important}
 @keyframes outage-alert{0%,49%{opacity:1}50%,100%{opacity:.24}}
 
 /* keep LED blinking while marker stays steady */

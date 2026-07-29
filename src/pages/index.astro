@@ -429,10 +429,7 @@ const dateFmt = (s: string) => new Intl.DateTimeFormat('en', { month: 'short', d
         wrap.addEventListener('mousemove',(event)=>{
           if(isMobileView())return
           const btn=pickButton(event.target)
-          if(!btn){
-            if(activeWrap===wrap&&!lockOpen)closeActiveCard()
-            return
-          }
+          if(!btn)return
           if(activeBtn!==btn||activeWrap!==wrap)openFromButton(btn,false)
         })
 
@@ -461,14 +458,13 @@ const dateFmt = (s: string) => new Intl.DateTimeFormat('en', { month: 'short', d
           }
         })
 
-        wrap.addEventListener('mouseleave',()=>{if(lockOpen||isMobileView())return;closeActiveCard()})
         wrap.dataset.cardBound='true'
       }
 
       document.addEventListener('click',(event)=>{const target=event.target as Node;if(activeWrap&& !activeWrap.contains(target))closeActiveCard()})
       document.addEventListener('keydown',(event)=>{if(event.key==='Escape')closeActiveCard()})
       window.addEventListener('resize',()=>{if(activeWrap&&activeBtn){const card=activeWrap.querySelector<HTMLElement>('.history-card');if(card&&!card.hidden)positionCard(activeWrap,activeBtn,card)}})
-      window.addEventListener('scroll',()=>{if(activeWrap&&activeBtn){if(lockOpen){const card=activeWrap.querySelector<HTMLElement>('.history-card');if(card&&!card.hidden)positionCard(activeWrap,activeBtn,card)}else closeActiveCard()}},{passive:true})
+      window.addEventListener('scroll',()=>{if(activeWrap&&activeBtn){const card=activeWrap.querySelector<HTMLElement>('.history-card');if(card&&!card.hidden)positionCard(activeWrap,activeBtn,card)}},{passive:true})
 
       const createRow=(check:Check)=>{const row=document.createElement('article');row.className='service-row';row.dataset.token=check.token;row.innerHTML=`<div class="service-identity"><span class="service-dot"></span><div><h2></h2><p>Last checked <time></time></p><div class="history-wrap" data-token="${check.token}"><div class="history" role="list" aria-label="7-day history"></div><div class="history-labels"><span></span><span>Today</span></div><div class="history-card" id="history-card-${check.token}" role="dialog" aria-live="polite" hidden></div></div></div></div><div class="service-result"><span class="status-label"></span><span class="uptime"><small>7-DAY UPTIME</small>—</span><a target="_blank" rel="noreferrer">↗</a></div>`;row.querySelector<HTMLAnchorElement>('.service-result a')!.href=`https://updown.io/${check.token}`;attachHistoryCard(row.querySelector<HTMLElement>('.history-wrap')!);return row}
 
