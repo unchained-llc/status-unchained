@@ -245,7 +245,8 @@
 .status-page .history-wrap.has-history-card[data-active-marker="degraded"]::before{background:color-mix(in srgb,var(--status-degraded),transparent 22%)}
 .status-page .history-wrap.has-history-card[data-active-marker="outage"]::before{background:color-mix(in srgb,var(--status-outage),transparent 22%)}
 
-.status-page .history-card{width:min(500px,calc(100vw - 2rem));max-width:500px;min-width:320px;padding:8px 13px 12px;border:1px solid color-mix(in srgb,var(--line),transparent 14%);border-radius:14px;background:rgba(255,255,255,.90);backdrop-filter:blur(8px) saturate(105%);-webkit-backdrop-filter:blur(8px) saturate(105%);box-shadow:0 10px 24px rgba(18,28,53,.09),inset 0 1px 0 rgba(255,255,255,.42);top:calc(100% + .72rem)}
+.status-page .history-card{width:min(500px,calc(100vw - 2rem));max-width:500px;min-width:320px;padding:8px 13px 12px;border:1px solid color-mix(in srgb,var(--line),transparent 14%);border-radius:14px;background:rgba(255,255,255,.90);backdrop-filter:blur(8px) saturate(105%);-webkit-backdrop-filter:blur(8px) saturate(105%);box-shadow:0 10px 24px rgba(18,28,53,.09),inset 0 1px 0 rgba(255,255,255,.42);top:calc(100% + .72rem);pointer-events:none}
+.status-page .history-wrap.is-locked .history-card{pointer-events:auto}
 @media(prefers-color-scheme:dark){.status-page .history-card{background:rgba(12,16,24,.86);box-shadow:0 10px 26px rgba(0,0,0,.34),inset 0 1px 0 rgba(255,255,255,.10)}}
 .status-page .history-card::before{display:none}
 
