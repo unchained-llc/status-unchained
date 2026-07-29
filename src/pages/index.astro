@@ -1,5 +1,6 @@
 ---
 import eventsDoc from '../../public/events.json'
+import Nav from '../components/Nav.astro'
 
 type Check = {
   token: string
@@ -234,6 +235,35 @@ const dateFmt = (s: string) => new Intl.DateTimeFormat('en', { month: 'short', d
     <meta name="color-scheme" content="light dark" />
     <meta name="description" content="Service status provided by UNCHAINED" />
     <title>UNCHAINED | System Status</title>
+    <script is:inline>
+      // Inlined in head to avoid theme flash.
+      const USER_THEME_TTL_MS = 24 * 60 * 60 * 1000;
+      const getThemePreference = () => {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const osTheme = prefersDark ? 'dark' : 'light';
+        if (typeof localStorage === 'undefined') return { theme: osTheme, source: 'os' };
+        const userSet = localStorage.getItem('theme-user') === '1';
+        const stored = localStorage.getItem('theme');
+        const userSetAtRaw = localStorage.getItem('theme-user-at');
+        const userSetAt = userSetAtRaw ? Number(userSetAtRaw) : NaN;
+        const osAtSet = localStorage.getItem('theme-os-at-set');
+        const userChoiceActive = Number.isFinite(userSetAt) && Date.now() - userSetAt < USER_THEME_TTL_MS;
+        const osChangedSinceUserSet = !!osAtSet && osAtSet !== osTheme;
+        if (userSet && stored && userChoiceActive && !osChangedSinceUserSet && stored !== osTheme) return { theme: stored, source: 'user' };
+        if (userSet) {
+          localStorage.removeItem('theme-user');
+          localStorage.removeItem('theme-user-at');
+          localStorage.removeItem('theme-os-at-set');
+        }
+        return { theme: osTheme, source: 'os' };
+      };
+      const pref = getThemePreference();
+      const isDark = pref.theme === 'dark';
+      document.documentElement.classList.toggle('theme-dark', isDark);
+      document.documentElement.classList.toggle('theme-light', !isDark);
+      document.documentElement.dataset.theme = pref.theme;
+      document.documentElement.dataset.themeSource = pref.source;
+    </script>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=20260202" />
     <link rel="icon" type="image/png" href="/favicon.png?v=20260202" />
     <link rel="stylesheet" href="/global.css?v=20260729" />
@@ -245,10 +275,7 @@ const dateFmt = (s: string) => new Intl.DateTimeFormat('en', { month: 'short', d
   <body>
     <div class="page-shell">
       <header class="site-header">
-        <a href="https://www.unchained.co.jp" class="brand" aria-label="UNCHAINED official website">
-          <img src="/assets/logo.svg" alt="" width="48" height="48" />
-          <span>UNCHAINED</span>
-        </a>
+        <Nav />
       </header>
 
       <main class="status-page" data-api-key={apiKey}>
