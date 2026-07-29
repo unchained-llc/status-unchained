@@ -235,7 +235,7 @@
 .status-page .history-day:nth-child(7):focus-visible,
 .status-page .history-day:nth-child(7).is-active{animation:var(--today-led-animation)!important}
 
-/* card表示中はアクティブ日のLEDを固定してマーカーを見失わない */
+/* Keep the active-day LED fixed while the card is open so the marker remains easy to track */
 .status-page .history-wrap.has-history-card .history-day.is-active{animation:none!important}
 .status-page .service-row.is-up .history-wrap.has-history-card .history-day.is-active{opacity:.58!important}
 .status-page .service-row.is-maintenance .history-wrap.has-history-card .history-day.is-active{opacity:.74!important}
