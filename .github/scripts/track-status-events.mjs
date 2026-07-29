@@ -119,8 +119,14 @@ async function main() {
     }
   }
 
-  if (doc.events.length > 1000) {
-    doc.events = doc.events.slice(0, 1000);
+  // イベント保持は直近7日分のみに限定
+  const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  const filteredEvents = doc.events.filter((event) => {
+    const at = new Date(event.at).getTime();
+    return Number.isFinite(at) && at >= sevenDaysAgo;
+  });
+  if (filteredEvents.length !== doc.events.length) {
+    doc.events = filteredEvents;
     changed = true;
   }
 
