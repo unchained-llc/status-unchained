@@ -263,7 +263,7 @@
 .status-page .history-card-status.is-ongoing{color:color-mix(in srgb,var(--status-maintenance),black 30%)}
 .status-page .history-card-event-icon{position:relative;display:block;width:.72rem;height:.72rem;margin-top:.15rem}
 .status-page .history-card-event-icon.is-maintenance::before{content:'';position:absolute;inset:0;margin:auto;width:.56rem;height:.56rem;background:var(--status-maintenance);transform:rotate(45deg);border-radius:.08rem}
-.status-page .history-card-event-icon.is-degraded::before{content:'';position:absolute;inset:0;margin:auto;width:0;height:0;border-left:.33rem solid transparent;border-right:.33rem solid transparent;border-bottom:.6rem solid var(--status-degraded)}
+.status-page .history-card-event-icon.is-degraded::before{content:'';position:absolute;inset:0;margin:auto;width:0;height:0;border-left:.33rem solid transparent;border-right:.33rem solid transparent;border-bottom:.6rem solid var(--status-outage)!important}
 .status-page .history-card-event-icon.is-outage::before{content:'';position:absolute;inset:0;margin:auto;width:.56rem;height:.56rem;border-radius:50%;background:var(--status-outage)}
 .status-page .history-card-empty{margin:0;font-size:13px;line-height:1.25;color:var(--muted)}
 
@@ -280,7 +280,7 @@
 .status-page .history-dayline-tick{position:absolute;top:1px;width:1px;height:7px;background:color-mix(in srgb,var(--line),transparent 28%);transform:translateX(-50%)}
 .status-page .history-dayline-highlight{position:absolute;top:3px;height:3px;min-width:10px;border-radius:0;z-index:1}
 .status-page .history-dayline-highlight.is-maintenance{background:var(--status-maintenance)}
-.status-page .history-dayline-highlight.is-degraded{background:var(--status-degraded)}
+.status-page .history-dayline-highlight.is-degraded{background:var(--status-outage)}
 .status-page .history-dayline-highlight.is-outage{background:var(--status-outage)}
 .status-page .history-dayline-now{position:absolute;top:50%;transform:translate(-50%,-50%);z-index:2;pointer-events:none}
 .status-page .history-dayline-now .dot{display:block;width:.86rem;height:.86rem;border-radius:50%;background:rgba(255,255,255,.96);border:2px solid color-mix(in srgb,var(--status-operational),white 20%);box-shadow:0 0 0 1px color-mix(in srgb,var(--line),transparent 30%),0 0 10px color-mix(in srgb,var(--status-operational),transparent 60%)}
