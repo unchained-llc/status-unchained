@@ -346,7 +346,7 @@ const dateFmt = (s: string) => new Intl.DateTimeFormat('en', { month: 'short', d
       const page=document.querySelector<HTMLElement>('.status-page')
       const services=document.querySelector<HTMLElement>('.services')
       const eventsByToken:Record<string,StatusEvent[]>={}
-      const isMobileView=()=>window.matchMedia('(max-width: 38rem)').matches
+      const isMobileView=()=>window.matchMedia('(hover: none), (pointer: coarse)').matches
 
       const rel=(value:string|Date)=>{const date=value instanceof Date?value:new Date(value);const seconds=Math.round((date.getTime()-Date.now())/1000);const formatter=new Intl.RelativeTimeFormat('en',{numeric:'auto'});const units:Array<[Intl.RelativeTimeFormatUnit,number]>=[['year',31536000],['month',2592000],['day',86400],['hour',3600],['minute',60],['second',1]];const [unit,amount]=units.find(([,amount])=>Math.abs(seconds)>=amount)??units.at(-1)!;return formatter.format(Math.round(seconds/amount),unit)}
       const formatUptime=(value:number)=>Number.isFinite(value)?`${value.toFixed(value===100?0:2)}%`:'—'
@@ -365,7 +365,7 @@ const dateFmt = (s: string) => new Intl.DateTimeFormat('en', { month: 'short', d
       const markerFromEvents=(events:NormalizedEvent[]):MarkerStatus=>{if(events.some(e=>e.status==='outage'))return'outage';if(events.some(e=>e.status==='degraded'))return'degraded';if(events.some(e=>e.status==='maintenance'))return'maintenance';return'operational'}
 
       const timeRange=(event:NormalizedEvent)=>{if(event.startAt&&event.endAt)return`${hhmm(event.startAt)}–${hhmm(event.endAt)} UTC`;if(event.startAt)return`${hhmm(event.startAt)}–ongoing UTC`;if(event.endAt)return`ended ${hhmm(event.endAt)} UTC`;return'—'}
-      const eventDurationLabel=(event:NormalizedEvent)=>{if(!event.startAt||!event.endAt)return'';const ms=new Date(event.endAt).getTime()-new Date(event.startAt).getTime();if(!Number.isFinite(ms)||ms<=0)return'';const mins=Math.max(1,Math.round(ms/60000));return `${mins} ${mins===1?'minute':'minutes'}`}
+      const eventDurationLabel=(event:NormalizedEvent)=>{if(!event.startAt||!event.endAt)return'';const ms=new Date(event.endAt).getTime()-new Date(event.startAt).getTime();if(!Number.isFinite(ms)||ms<=0)return'';const mins=Math.max(1,Math.round(ms/60000));if(mins<60)return `${mins} min`;const hrs=Math.floor(mins/60);const rem=mins%60;if(rem===0)return `${hrs} hr`;return `${hrs} hr ${rem} min`}
       const dayTimelineRanges=(date:string,events:NormalizedEvent[])=>{const toMinutes=(iso:string)=>{const d=new Date(iso);return d.getUTCHours()*60+d.getUTCMinutes()+d.getUTCSeconds()/60};return events.map((event)=>{if(!event.startAt&&!event.endAt)return null;let startMin=event.startAt?toMinutes(event.startAt):event.endAt?toMinutes(event.endAt):0;let endMin=event.endAt?toMinutes(event.endAt):event.startAt?(event.ongoing?toMinutes(new Date().toISOString()):toMinutes(event.startAt)):24*60;if(event.startAt&&dayKey(event.startAt)<date)startMin=0;if(event.endAt&&dayKey(event.endAt)>date)endMin=24*60;if(endMin<startMin)endMin=startMin+1;const startPct=(startMin/(24*60))*100;const endPct=(endMin/(24*60))*100;return{status:event.status,startPct,endPct}}).filter(Boolean) as Array<{status:NormalizedEvent['status'];startPct:number;endPct:number}>}
 
       let activeWrap:HTMLElement|null=null

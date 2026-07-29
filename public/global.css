@@ -207,29 +207,31 @@
 .status-page .history-day.is-today{background:color-mix(in srgb,var(--success),white 12%)!important;opacity:.72!important}
 .status-page .history-day:hover,.status-page .history-day:focus-visible{opacity:1;filter:none!important}
 .status-page .history-day.is-active{opacity:1;filter:none!important}
-.status-page .history-day .history-marker{position:absolute;left:50%;top:50%;display:none;width:.5rem;height:.5rem;transform:translate(-50%,-50%);z-index:2;opacity:0;pointer-events:none;border:2px solid rgba(255,255,255,.94);border-radius:50%!important;clip-path:none!important;background:var(--status-operational);box-shadow:0 0 0 1px color-mix(in srgb,var(--line),transparent 25%),0 0 0 6px color-mix(in srgb,var(--status-operational),transparent 82%);transition:opacity 100ms ease,transform 100ms ease}
-.status-page .history-day.has-event .history-marker{display:block}
+.status-page .history-day .history-marker{position:absolute;left:50%;top:50%;display:block;width:.5rem;height:.5rem;transform:translate(-50%,-50%);z-index:2;opacity:0;pointer-events:none;border:2px solid rgba(255,255,255,.94);border-radius:50%!important;clip-path:none!important;background:var(--status-operational);box-shadow:0 0 0 1px color-mix(in srgb,var(--line),transparent 25%),0 0 0 6px color-mix(in srgb,var(--status-operational),transparent 82%);transition:opacity 100ms ease,transform 100ms ease}
 .status-page .history-day.marker-maintenance .history-marker{background:var(--status-maintenance);box-shadow:0 0 0 1px color-mix(in srgb,var(--line),transparent 25%),0 0 0 6px color-mix(in srgb,var(--status-maintenance),transparent 82%)}
 .status-page .history-day.marker-degraded .history-marker{background:var(--status-degraded);box-shadow:0 0 0 1px color-mix(in srgb,var(--line),transparent 25%),0 0 0 6px color-mix(in srgb,var(--status-degraded),transparent 82%)}
 .status-page .history-day.marker-outage .history-marker{background:var(--status-outage);box-shadow:0 0 0 1px color-mix(in srgb,var(--line),transparent 25%),0 0 0 6px color-mix(in srgb,var(--status-outage),transparent 82%)}
 .status-page .history-day.had-downtime .history-marker{background:var(--status-outage)!important;box-shadow:0 0 0 1px color-mix(in srgb,var(--line),transparent 25%),0 0 0 6px color-mix(in srgb,var(--status-outage),transparent 82%)!important}
-.status-page .history-day.has-event:hover .history-marker,
-.status-page .history-day.has-event:focus-visible .history-marker,
-.status-page .history-day.has-event.is-active .history-marker{opacity:1;transform:translate(-50%,-50%) scale(1.04)}
+.status-page .history-day:hover .history-marker,
+.status-page .history-day:focus-visible .history-marker,
+.status-page .history-day.is-active .history-marker{opacity:1;transform:translate(-50%,-50%) scale(1.04)}
 .status-page .history-day:nth-child(7){box-shadow:0 0 10px color-mix(in srgb,var(--success),transparent 42%),0 0 18px color-mix(in srgb,var(--success),transparent 64%)}
 .status-page .history-day.had-downtime:nth-child(7){box-shadow:0 0 10px color-mix(in srgb,var(--status-outage),transparent 42%),0 0 18px color-mix(in srgb,var(--status-outage),transparent 64%)}
 
 /* today LED follows live status, not historical marker */
 .status-page .service-row.is-up .history-day.is-today{background:color-mix(in srgb,var(--success),white 12%)!important;opacity:.72!important}
-.status-page .service-row.is-up .history-day.is-today:nth-child(7){background:color-mix(in srgb,var(--success),white 12%)!important;animation:meter-random .5s steps(1,end) infinite!important;box-shadow:0 0 10px color-mix(in srgb,var(--success),transparent 42%),0 0 18px color-mix(in srgb,var(--success),transparent 64%)!important}
+.status-page .service-row.is-up .history-day.is-today:nth-child(7){background:color-mix(in srgb,var(--success),white 12%)!important;animation:meter-random .5s steps(1,end) infinite!important;box-shadow:0 0 8px color-mix(in srgb,var(--success),transparent 46%),0 0 14px color-mix(in srgb,var(--success),transparent 68%)!important}
 .status-page .service-row.is-maintenance .history-day.is-today{background:var(--status-maintenance)!important;opacity:.88!important}
-.status-page .service-row.is-maintenance .history-day.is-today:nth-child(7){animation:maintenance-breathe 2s ease-in-out infinite!important;box-shadow:0 0 10px color-mix(in srgb,var(--status-maintenance),transparent 42%),0 0 18px color-mix(in srgb,var(--status-maintenance),transparent 64%)!important}
+.status-page .service-row.is-maintenance .history-day.is-today:nth-child(7){animation:maintenance-breathe 2s ease-in-out infinite!important;box-shadow:0 0 8px color-mix(in srgb,var(--status-maintenance),transparent 46%),0 0 14px color-mix(in srgb,var(--status-maintenance),transparent 68%)!important}
 .status-page .service-row.is-down .history-day.is-today{background:var(--status-outage)!important;opacity:1!important}
 .status-page .service-row.is-down .history-day.is-today:nth-child(7){animation:none!important;box-shadow:0 0 10px color-mix(in srgb,var(--status-outage),transparent 42%),0 0 18px color-mix(in srgb,var(--status-outage),transparent 64%)!important}
 
-.status-page .history-wrap.has-history-card::before{left:var(--card-anchor-x,50%);top:var(--card-anchor-y,.45rem);height:var(--card-connector-h,12px);opacity:.7;background:color-mix(in srgb,var(--accent),transparent 35%);background-image:linear-gradient(to bottom,color-mix(in srgb,var(--accent),transparent 0%) 50%,transparent 0);background-size:1px 5px;background-repeat:repeat-y}
+.status-page .history-wrap.has-history-card::before{left:var(--card-anchor-x,50%);top:var(--card-anchor-y,.45rem);height:var(--card-connector-h,12px);opacity:.78;background:color-mix(in srgb,var(--status-operational),transparent 22%)}
+.status-page .history-wrap.has-history-card[data-active-marker="maintenance"]::before{background:color-mix(in srgb,var(--status-maintenance),transparent 22%)}
+.status-page .history-wrap.has-history-card[data-active-marker="degraded"]::before{background:color-mix(in srgb,var(--status-degraded),transparent 22%)}
+.status-page .history-wrap.has-history-card[data-active-marker="outage"]::before{background:color-mix(in srgb,var(--status-outage),transparent 22%)}
 
-.status-page .history-card{width:min(500px,calc(100vw - 2rem));max-width:500px;min-width:320px;padding:11px 13px;border:1px solid color-mix(in srgb,var(--line),transparent 8%);border-radius:14px;background:rgba(255,255,255,.98);box-shadow:0 10px 24px rgba(18,28,53,.09);top:calc(100% + .72rem)}
+.status-page .history-card{width:min(500px,calc(100vw - 2rem));max-width:500px;min-width:320px;padding:7px 13px 11px;border:1px solid color-mix(in srgb,var(--line),transparent 8%);border-radius:14px;background:rgba(255,255,255,.98);box-shadow:0 10px 24px rgba(18,28,53,.09);top:calc(100% + .72rem)}
 @media(prefers-color-scheme:dark){.status-page .history-card{background:rgba(12,16,24,.96);box-shadow:0 10px 26px rgba(0,0,0,.34)}}
 .status-page .history-card::before{display:none}
 
@@ -240,7 +242,7 @@
 .status-page .history-card-left{display:grid;grid-template-columns:.82rem minmax(0,1fr);align-items:start;gap:.56rem;min-width:0}
 .status-page .history-card-copy{min-width:0}
 .status-page .history-card-title{margin:0;font-size:14px;font-weight:500;line-height:1.2;color:var(--text)}
-.status-page .history-card-meta-line{margin:2px 0 0;display:inline-flex;align-items:center;gap:.45rem;font-size:13px;font-weight:400;line-height:1.2;color:var(--muted)}
+.status-page .history-card-meta-line{margin:2px 0 0;display:inline-flex;align-items:center;gap:.45rem;font-size:13px;font-weight:400;line-height:1.2;color:var(--muted);font-variant-numeric:tabular-nums}
 .status-page .history-card-meta-line .sep{opacity:.45}
 .status-page .history-card-duration{font-size:13px;font-weight:500;color:color-mix(in srgb,var(--text),transparent 26%)}
 .status-page .history-card-status{margin:1px 0 0;font-size:11px;font-weight:500;line-height:1.2;color:color-mix(in srgb,var(--text),transparent 48%)}
@@ -251,7 +253,7 @@
 .status-page .history-card-event-icon.is-outage::before{content:'';position:absolute;inset:0;margin:auto;width:.56rem;height:.56rem;border-radius:50%;background:var(--status-outage)}
 .status-page .history-card-empty{margin:0;font-size:13px;line-height:1.25;color:var(--muted)}
 
-.status-page .history-dayline-labels{position:relative;height:14px;margin:8px 0 2px;font-size:10px;color:color-mix(in srgb,var(--muted),transparent 8%)}
+.status-page .history-dayline-labels{position:relative;height:14px;margin:8px 0 2px;font-size:10px;color:color-mix(in srgb,var(--muted),transparent 2%);font-variant-numeric:tabular-nums}
 .status-page .history-dayline-labels span{position:absolute;top:0;transform:translateX(-50%)}
 .status-page .history-dayline-labels span:nth-child(1){left:0;transform:none}
 .status-page .history-dayline-labels span:nth-child(2){left:25%}
@@ -259,8 +261,8 @@
 .status-page .history-dayline-labels span:nth-child(4){left:75%}
 .status-page .history-dayline-labels span:nth-child(5){left:100%;transform:translateX(-100%)}
 .status-page .history-dayline-rail{position:relative;height:10px;margin-top:1px}
-.status-page .history-dayline-base{position:absolute;left:0;right:0;top:4px;height:1.5px;border-radius:999px;background:color-mix(in srgb,var(--line),transparent 34%)}
-.status-page .history-dayline-tick{position:absolute;top:1px;width:1px;height:7px;background:color-mix(in srgb,var(--line),transparent 28%);transform:translateX(-50%)}
+.status-page .history-dayline-base{position:absolute;left:0;right:0;top:4px;height:1.5px;border-radius:999px;background:color-mix(in srgb,var(--line),transparent 24%)}
+.status-page .history-dayline-tick{position:absolute;top:1px;width:1px;height:7px;background:color-mix(in srgb,var(--line),transparent 18%);transform:translateX(-50%)}
 .status-page .history-dayline-highlight{position:absolute;top:2px;height:5px;min-width:10px;border-radius:999px}
 .status-page .history-dayline-highlight.is-maintenance{background:var(--status-maintenance)}
 .status-page .history-dayline-highlight.is-degraded{background:var(--status-degraded)}
