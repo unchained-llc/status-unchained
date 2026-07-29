@@ -318,4 +318,13 @@
   .status-page .history-card-title{font-size:16px}
   .status-page .history-card-meta-line{font-size:13px}
   .status-page .history-card-end{font-size:13px}
+
+  /* mobile: align service dot with title line */
+  .status-page .service-identity{align-items:flex-start}
+  .status-page .service-dot{margin-top:.62rem;flex:0 0 auto}
+
+  /* mobile: center LED row (cancel dot+gap horizontal offset) */
+  .status-page .history-wrap{width:calc(100% + 1.65rem);margin-left:-1.65rem}
+  .status-page .history,
+  .status-page .history-labels{width:100%}
 }
