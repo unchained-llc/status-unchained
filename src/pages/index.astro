@@ -397,7 +397,10 @@ const dateFmt = (s: string) => new Intl.DateTimeFormat('en', { month: 'short', d
         const pending=hideTimers.get(card);if(pending)window.clearTimeout(pending)
         card.hidden=false
         wrap.classList.add('has-history-card')
-        wrap.dataset.activeMarker=btn.classList.contains('had-downtime')?'outage':payload.marker
+        const row=wrap.closest<HTMLElement>('.service-row')
+        const isTodaySlot=btn.parentElement?.lastElementChild===btn
+        const liveMarker=row?.classList.contains('is-down')?'outage':row?.classList.contains('is-maintenance')?'maintenance':'operational'
+        wrap.dataset.activeMarker=isTodaySlot?liveMarker:(btn.classList.contains('had-downtime')?'outage':payload.marker)
         if(locked)wrap.classList.add('is-locked');else wrap.classList.remove('is-locked')
         positionCard(wrap,btn,card)
         requestAnimationFrame(()=>card.classList.add('is-open'))
