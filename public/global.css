@@ -312,6 +312,18 @@
 .status-page .history-marker-count,
 .status-page .history-day.has-multiple .history-marker-multi{display:none!important}
 
+@media(min-width:38.01rem){
+  /* desktop: keep each row vertically centered between separators */
+  .status-page .service-row{padding-top:2.1rem;padding-bottom:3.125rem}
+
+  /* desktop: align LED row and right column as one unit */
+  .status-page .service-result{position:relative;top:1.1rem}
+  .status-page .status-label,
+  .status-page .uptime,
+  .status-page .service-result > a{position:static}
+  .status-page .status-label{line-height:1;transform:translateY(2px)}
+}
+
 @media(max-width:38rem){
   .status-page .history-card{position:absolute!important;left:50%!important;right:auto!important;transform:translateX(-50%);top:calc(100% + .72rem)!important;bottom:auto!important;width:calc(100vw - 2rem)!important;max-width:calc(100vw - 2rem)!important;min-width:unset!important;box-sizing:border-box;padding:12px}
   .status-page .history-card-date{font-size:14px}
