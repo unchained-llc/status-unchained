@@ -202,7 +202,7 @@
 .status-page .history{gap:.28rem}
 .status-page .history-day{position:relative;height:.28rem;padding:0;border:0;border-radius:999px;opacity:.72;background:color-mix(in srgb,var(--success),white 12%);overflow:visible}
 .status-page .history-day::after{content:'';position:absolute;left:0;right:0;top:-15px;bottom:-15px}
-.status-page .history-day.had-downtime{background:var(--status-outage);opacity:1}
+.status-page .history-day.had-downtime{background:var(--status-outage)}
 .status-page .history-day.marker-degraded.had-downtime{opacity:.72}
 
 /* today defaults to operational unless live row state says otherwise */
