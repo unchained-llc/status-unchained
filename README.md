@@ -46,9 +46,16 @@ src/
     index.astro      # メインページ（SSR時の初期表示 + クライアント更新）
 public/
   global.css         # 全体スタイル
+  events.json        # 自動記録される状態遷移ログ
   favicon.svg
   favicon.png
   assets/
+.github/
+  workflows/
+    deploy-pages.yml
+    track-status-events.yml
+  scripts/
+    track-status-events.mjs
 astro.config.mjs
 package.json
 ```
@@ -63,6 +70,23 @@ package.json
 
 現在は読み取り専用 API キーをページ内で参照する実装です
 運用上の要件に応じて、環境変数化や中継API化を検討してください
+
+## 自動イベント記録（メンテ/障害）
+
+`track-status-events.yml` が5分ごとに実行され、`public/events.json` を更新します
+
+- 記録されるイベント
+  - `maintenance_started`
+  - `maintenance_ended`
+  - `incident_started`
+  - `incident_resolved`
+- 同じ状態が続く場合は追記しません
+- 初回実行時はベースライン作成のみで、イベントは生成しません
+
+### APIキーについて
+
+GitHub Secrets に `UPDOWN_API_KEY` を設定すると、その値を優先して使用します
+未設定時はスクリプト内の既定キーを使用します
 
 ## UIメモ（現行）
 
