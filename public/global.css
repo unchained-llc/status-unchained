@@ -203,6 +203,7 @@
 .status-page .history-day{position:relative;height:.28rem;padding:0;border:0;border-radius:999px;opacity:.72;background:color-mix(in srgb,var(--success),white 12%);overflow:visible}
 .status-page .history-day::after{content:'';position:absolute;left:0;right:0;top:-15px;bottom:-15px}
 .status-page .history-day.had-downtime{background:var(--status-outage);opacity:1}
+.status-page .history-day.marker-degraded.had-downtime{opacity:.72}
 
 /* today defaults to operational unless live row state says otherwise */
 .status-page .history-day.is-today{background:color-mix(in srgb,var(--success),white 18%)!important;opacity:.66!important}
@@ -220,7 +221,8 @@
 .status-page .history-day.had-downtime:nth-child(7){box-shadow:0 0 10px color-mix(in srgb,var(--status-outage),transparent 42%),0 0 18px color-mix(in srgb,var(--status-outage),transparent 64%)}
 
 /* today LED follows live status, not historical marker */
-.status-page .service-row.is-up .history-day:nth-child(7){background:color-mix(in srgb,var(--success),white 24%)!important;box-shadow:0 0 6px color-mix(in srgb,var(--success),transparent 58%),0 0 10px color-mix(in srgb,var(--success),transparent 78%)!important}
+.status-page .service-row.is-up .history-day:nth-child(7){background:color-mix(in srgb,var(--success),white 24%)!important;filter:brightness(1.1)!important;box-shadow:0 0 6px color-mix(in srgb,var(--success),transparent 58%),0 0 10px color-mix(in srgb,var(--success),transparent 78%)!important}
+
 .status-page .service-row.is-maintenance .history-day:nth-child(7){background:var(--status-maintenance)!important;opacity:.74;animation:maintenance-soft 2s ease-in-out infinite!important;box-shadow:0 0 6px color-mix(in srgb,var(--status-maintenance),transparent 58%),0 0 10px color-mix(in srgb,var(--status-maintenance),transparent 78%)!important}
 .status-page .service-row.is-down .history-day:nth-child(7){background:var(--status-outage)!important;opacity:1;animation:outage-alert 1s steps(1,end) infinite!important;box-shadow:0 0 10px color-mix(in srgb,var(--status-outage),transparent 42%),0 0 18px color-mix(in srgb,var(--status-outage),transparent 64%)!important}
 @keyframes meter-soft{0%{opacity:.58;filter:brightness(.94)}8%{opacity:.58;filter:brightness(1.08)}14%{opacity:.58;filter:brightness(.9)}22%{opacity:.58;filter:brightness(1.12)}31%{opacity:.58;filter:brightness(.92)}39%{opacity:.58;filter:brightness(1.1)}48%{opacity:.58;filter:brightness(.89)}57%{opacity:.58;filter:brightness(1.13)}66%{opacity:.58;filter:brightness(.91)}75%{opacity:.58;filter:brightness(1.09)}85%{opacity:.58;filter:brightness(.93)}92%{opacity:.58;filter:brightness(1.06)}100%{opacity:.58;filter:brightness(.94)}}
@@ -229,6 +231,8 @@
 
 /* keep LED blinking while marker stays steady */
 .status-page .history-day:nth-child(7){--today-led-animation:meter-soft .32s steps(1,end) infinite}
+.status-page .service-row:not([data-token="2w7e"]) .history-day:nth-child(7){animation-delay:var(--today-led-delay,0ms)!important}
+.status-page .service-row[data-token="2w7e"].is-up .history-day:nth-child(7){animation:meter-random .5s steps(1,end) infinite!important;animation-delay:0ms!important}
 .status-page .service-row.is-maintenance .history-day:nth-child(7){--today-led-animation:maintenance-soft 2s ease-in-out infinite}
 .status-page .service-row.is-down .history-day:nth-child(7){--today-led-animation:outage-alert 1s steps(1,end) infinite}
 .status-page .history-day:nth-child(7):hover,
@@ -242,9 +246,9 @@
 
 /* Keep the active-day LED fixed while the card is open so the marker remains easy to track */
 .status-page .history-wrap.has-history-card .history-day.is-active{animation:none!important}
-.status-page .service-row.is-up .history-wrap.has-history-card .history-day.is-active{opacity:.58!important}
-.status-page .service-row.is-maintenance .history-wrap.has-history-card .history-day.is-active{opacity:.74!important}
-.status-page .service-row.is-down .history-wrap.has-history-card .history-day.is-active{opacity:1!important}
+.status-page .service-row.is-up .history-wrap.has-history-card .history-day.is-active:nth-child(7){opacity:.58!important}
+.status-page .service-row.is-maintenance .history-wrap.has-history-card .history-day.is-active:nth-child(7){opacity:.74!important}
+.status-page .service-row.is-down .history-wrap.has-history-card .history-day.is-active:nth-child(7){opacity:1!important}
 
 /* marker color follows LIVE LED state on today slot (7th) */
 .status-page .service-row.is-up .history-day:nth-child(7) .history-marker{background:var(--status-operational)!important;box-shadow:0 0 0 1px color-mix(in srgb,var(--line),transparent 25%),0 0 0 10px color-mix(in srgb,var(--status-operational),transparent 82%)!important}
