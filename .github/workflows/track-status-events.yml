@@ -1,4 +1,5 @@
 name: Track status events
+# noop: touch workflow to refresh scheduler registration
 
 on:
   schedule:
