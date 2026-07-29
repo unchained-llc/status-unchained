@@ -1,52 +1,52 @@
 # UNCHAINED Status Page
 
-`status.unchained.co.jp` 用のステータスページ
-Astro で構築し、`updown.io` のチェック結果を表示します
+Status page for `status.unchained.co.jp`
+Built with Astro and displays check results from `updown.io`
 
-## 概要
+## Overview
 
-- サービス稼働状況の一覧表示
-- 全体ステータス（Operational / Maintenance / Disruption）表示
-- 7日間履歴バー表示
-- 最終チェック時刻の相対表示
-- 7-Day Uptime 表示
+- Displays a list of service health statuses
+- Shows overall status (Operational / Maintenance / Disruption)
+- Displays 7-day history bars
+- Displays relative time since the last check
+- Displays 7-Day Uptime
 
-## 技術スタック
+## Tech Stack
 
 - Astro `^7.0.9`
 - TypeScript `^5.9.3`
 - @astrojs/check `^0.9.6`
 - Node.js `>=22.12.0`
 
-## セットアップ
+## Setup
 
 ```bash
 npm install
 ```
 
-## 開発コマンド
+## Development Commands
 
 ```bash
-npm run dev      # 開発サーバ起動
-npm run check    # Astro/TS チェック
-npm run build    # チェック + ビルド
-npm run preview  # ビルド成果物のプレビュー
+npm run dev      # Start development server
+npm run check    # Run Astro/TS checks
+npm run build    # Check + build
+npm run preview  # Preview build output
 ```
 
-## ビルド成果物
+## Build Output
 
-- 出力先: `dist/`
-- サイト設定: `astro.config.mjs` (`site: https://status.unchained.co.jp`)
+- Output directory: `dist/`
+- Site config: `astro.config.mjs` (`site: https://status.unchained.co.jp`)
 
-## ディレクトリ構成
+## Directory Structure
 
 ```txt
 src/
   pages/
-    index.astro      # メインページ（SSR時の初期表示 + クライアント更新）
+    index.astro      # Main page (SSR initial render + client updates)
 public/
-  global.css         # 全体スタイル
-  events.json        # 自動記録される状態遷移ログ
+  global.css         # Global styles
+  events.json        # Auto-recorded state transition log
   favicon.svg
   favicon.png
   assets/
@@ -60,38 +60,38 @@ astro.config.mjs
 package.json
 ```
 
-## データ取得について
+## Data Fetching
 
-`src/pages/index.astro` で `updown.io` API を使って以下を取得します
+`src/pages/index.astro` uses the `updown.io` API to fetch:
 
-- チェック一覧: `/api/checks`
-- ダウンタイム履歴: `/api/checks/{token}/downtimes`
-- メトリクス: `/api/checks/{token}/metrics`
+- Check list: `/api/checks`
+- Downtime history: `/api/checks/{token}/downtimes`
+- Metrics: `/api/checks/{token}/metrics`
 
-現在は読み取り専用 API キーをページ内で参照する実装です
-運用上の要件に応じて、環境変数化や中継API化を検討してください
+The current implementation references a read-only API key in the page
+Depending on your operational requirements, consider switching to environment variables or a proxy API
 
-## 自動イベント記録（メンテ/障害）
+## Automated Event Tracking (Maintenance/Incidents)
 
-`track-status-events.yml` が5分ごとに実行され、`public/events.json` を更新します
+`track-status-events.yml` runs every 5 minutes and updates `public/events.json`
 
-- 記録されるイベント
+- Recorded event types:
   - `maintenance_started`
   - `maintenance_ended`
   - `incident_started`
   - `incident_resolved`
-- 同じ状態が続く場合は追記しません
-- 初回実行時はベースライン作成のみで、イベントは生成しません
-- イベントは直近7日分のみ保持されます
+- Does not append when state is unchanged
+- On first run, creates a baseline only (no event generation)
+- Keeps only the last 7 days of events
 
-### APIキーについて
+### API Key
 
-GitHub Secrets に `UPDOWN_API_KEY` を設定すると、その値を優先して使用します
-未設定時はスクリプト内の既定キーを使用します
+If `UPDOWN_API_KEY` is configured in GitHub Secrets, it is used with priority
+If not configured, the default key in the script is used
 
-## UIメモ（現行）
+## UI Notes (Current)
 
-- 右端の「現在インジケーター」に状態別エフェクトを適用
-  - 通常（緑）: 高速点滅 + 固定グロウ
-  - メンテ（黄）: ゆっくりブレス（グロウなし）
-  - 障害（赤）: 固定表示（グロウなし）
+- Applies state-specific effects to the rightmost “current indicator”
+  - Normal (green): rapid blink + fixed glow
+  - Maintenance (yellow): slow breathing (no glow)
+  - Incident (red): fixed display (no glow)

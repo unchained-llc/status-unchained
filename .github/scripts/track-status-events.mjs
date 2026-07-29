@@ -72,7 +72,7 @@ async function main() {
     const currentState = resolveState(check);
     const previous = doc.latest[check.token];
 
-    // 初回検知はベースラインとして保存のみ（イベントは起こさない）
+    // First observation: save only as baseline (do not emit an event)
     if (!previous || typeof previous.state !== 'string') {
       doc.latest[check.token] = {
         token: check.token,
@@ -110,7 +110,7 @@ async function main() {
     }
   }
 
-  // 削除されたチェックは latest から除外
+  // Remove deleted checks from latest
   const liveTokens = new Set(checks.map((c) => c.token));
   for (const token of Object.keys(doc.latest)) {
     if (!liveTokens.has(token)) {
@@ -119,7 +119,7 @@ async function main() {
     }
   }
 
-  // イベント保持は直近7日分のみに限定
+  // Retain events for the last 7 days only
   const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
   const filteredEvents = doc.events.filter((event) => {
     const at = new Date(event.at).getTime();
