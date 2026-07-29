@@ -233,17 +233,18 @@
 .status-page .history-card::before{display:none}
 
 .status-page .history-card-date{margin:0;font-size:14px;font-weight:600;line-height:1.2;color:var(--text)}
-.status-page .history-card-list{display:grid;gap:7px;margin:7px 0 0;padding:0}
+.status-page .history-card-list{display:grid;gap:6px;margin:6px 0 0;padding:0}
 .status-page .history-card-entry{display:grid;gap:0;margin:0;padding:0;border:0;background:none}
-.status-page .history-card-line{display:grid!important;grid-template-columns:minmax(0,1fr);align-items:start;gap:.6rem;min-width:0}
+.status-page .history-card-line{display:grid!important;grid-template-columns:minmax(0,1fr);align-items:start;gap:.5rem;min-width:0}
 .status-page .history-card-left{display:grid;grid-template-columns:.82rem minmax(0,1fr);align-items:start;gap:.56rem;min-width:0}
 .status-page .history-card-copy{min-width:0}
 .status-page .history-card-title{margin:0;font-size:14px;font-weight:500;line-height:1.2;color:var(--text)}
-.status-page .history-card-time-line{margin:2px 0 0;font-size:13px;font-weight:400;line-height:1.25;color:var(--muted)}
-.status-page .history-card-duration{margin:1px 0 0;font-size:12px;font-weight:500;line-height:1.2;color:color-mix(in srgb,var(--text),transparent 30%)}
+.status-page .history-card-meta-line{margin:2px 0 0;display:inline-flex;align-items:center;gap:.45rem;font-size:13px;font-weight:400;line-height:1.2;color:var(--muted)}
+.status-page .history-card-meta-line .sep{opacity:.45}
+.status-page .history-card-duration{font-size:13px;font-weight:500;color:color-mix(in srgb,var(--text),transparent 26%)}
 .status-page .history-card-status{margin:1px 0 0;font-size:11px;font-weight:500;line-height:1.2;color:color-mix(in srgb,var(--text),transparent 48%)}
 .status-page .history-card-status.is-ongoing{color:color-mix(in srgb,var(--status-maintenance),black 30%)}
-.status-page .history-card-event-icon{position:relative;display:block;width:.72rem;height:.72rem;margin-top:.2rem}
+.status-page .history-card-event-icon{position:relative;display:block;width:.72rem;height:.72rem;margin-top:.15rem}
 .status-page .history-card-event-icon.is-maintenance::before{content:'';position:absolute;inset:0;margin:auto;width:.56rem;height:.56rem;background:var(--status-maintenance);transform:rotate(45deg);border-radius:.08rem}
 .status-page .history-card-event-icon.is-degraded::before{content:'';position:absolute;inset:0;margin:auto;width:0;height:0;border-left:.33rem solid transparent;border-right:.33rem solid transparent;border-bottom:.6rem solid var(--status-degraded)}
 .status-page .history-card-event-icon.is-outage::before{content:'';position:absolute;inset:0;margin:auto;width:.56rem;height:.56rem;border-radius:50%;background:var(--status-outage)}
@@ -256,10 +257,10 @@
 .status-page .history-dayline-labels span:nth-child(3){left:50%}
 .status-page .history-dayline-labels span:nth-child(4){left:75%}
 .status-page .history-dayline-labels span:nth-child(5){left:100%;transform:translateX(-100%)}
-.status-page .history-dayline-rail{position:relative;height:9px;margin-top:0}
-.status-page .history-dayline-base{position:absolute;left:0;right:0;top:4px;height:1.5px;border-radius:999px;background:color-mix(in srgb,var(--line),transparent 28%)}
-.status-page .history-dayline-tick{position:absolute;top:1px;width:1px;height:7px;background:color-mix(in srgb,var(--line),transparent 22%);transform:translateX(-50%)}
-.status-page .history-dayline-highlight{position:absolute;top:1.5px;height:5.5px;border-radius:999px}
+.status-page .history-dayline-rail{position:relative;height:10px;margin-top:1px}
+.status-page .history-dayline-base{position:absolute;left:0;right:0;top:4px;height:1.5px;border-radius:999px;background:color-mix(in srgb,var(--line),transparent 34%)}
+.status-page .history-dayline-tick{position:absolute;top:1px;width:1px;height:7px;background:color-mix(in srgb,var(--line),transparent 28%);transform:translateX(-50%)}
+.status-page .history-dayline-highlight{position:absolute;top:2px;height:5px;min-width:10px;border-radius:999px}
 .status-page .history-dayline-highlight.is-maintenance{background:var(--status-maintenance)}
 .status-page .history-dayline-highlight.is-degraded{background:var(--status-degraded)}
 .status-page .history-dayline-highlight.is-outage{background:var(--status-outage)}
@@ -279,7 +280,7 @@
 @media(max-width:38rem){
   .status-page .history-card{left:1rem!important;right:1rem;max-width:none;min-width:unset;bottom:calc(1rem + env(safe-area-inset-bottom));top:auto;padding:12px}
   .status-page .history-card-date{font-size:14px}
-  .status-page .history-card-title{font-size:14px}
-  .status-page .history-card-time-line{font-size:13px}
+  .status-page .history-card-title{font-size:16px}
+  .status-page .history-card-meta-line{font-size:13px}
   .status-page .history-card-end{font-size:13px}
 }
