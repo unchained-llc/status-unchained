@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "astro dev",
     "dev:ui": "astro dev --host --port 4321",
-    "dev:cf": "npx wrangler pages dev dist --proxy 4321 --port 8788 --compatibility-date 2026-07-29 --env-file .env --kv STATUS_EVENTS --persist-to .wrangler/state",
+    "dev:cf": "npx wrangler pages dev --proxy 4321 --port 8788 --compatibility-date 2026-07-29 --env-file .env --kv STATUS_EVENTS --persist-to .wrangler/state",
+    "dev:cf:dist": "npx wrangler pages dev dist --port 8788 --compatibility-date 2026-07-29 --env-file .env --kv STATUS_EVENTS --persist-to .wrangler/state", 
     "start": "astro dev",
     "build": "astro check && astro build",
     "preview": "astro preview",
