@@ -54,7 +54,7 @@ const isCurrentPage = (href: string) => {
 
 <nav>
     <div class="menu-header">
-        <a href="https://www.unchained.co.jp/" class="site-title">
+        <a href="https://www.unchained.co.jp/" class="site-title" data-theme-sync="true">
             <img class="logo" src="/assets/logo.svg" alt="UNCHAINED" />
             <span class="brand-logo">UNCHAINED</span>
         </a>
@@ -80,6 +80,7 @@ const isCurrentPage = (href: string) => {
                         <a
                             aria-current={isCurrentPage(href) ? "page" : null}
                             class="link"
+                            data-theme-sync={href.startsWith("https://www.unchained.co.jp/") ? "true" : null}
                             href={href}
                             target={external ? "_blank" : null}
                             rel={external ? "noopener noreferrer" : null}
@@ -113,6 +114,7 @@ const isCurrentPage = (href: string) => {
                         <a
                             aria-current={isCurrentPage(href) ? "page" : null}
                             class="link"
+                            data-theme-sync={href.startsWith("https://www.unchained.co.jp/") ? "true" : null}
                             href={href}
                             target={external ? "_blank" : null}
                             rel={external ? "noopener noreferrer" : null}
@@ -181,6 +183,58 @@ const isCurrentPage = (href: string) => {
         }
     }
     customElements.define("menu-button", MenuButton);
+
+    const resolveTheme = () => {
+        const byDataset = document.documentElement.dataset.theme;
+        if (byDataset === "dark" || byDataset === "light") return byDataset;
+        try {
+            const stored = localStorage.getItem("theme");
+            if (stored === "dark" || stored === "light") return stored;
+        } catch {}
+        return window.matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light";
+    };
+
+    const syncWwwLinksTheme = () => {
+        const theme = resolveTheme();
+        document
+            .querySelectorAll('a[data-theme-sync="true"]')
+            .forEach((anchor) => {
+                const href = anchor.getAttribute("href");
+                if (!href) return;
+                const url = new URL(href, window.location.origin);
+                url.searchParams.set("theme", theme);
+                anchor.setAttribute("href", url.toString());
+            });
+    };
+
+    syncWwwLinksTheme();
+
+    document.addEventListener("click", (event) => {
+        const target = event.target;
+        if (!(target instanceof Element)) return;
+        if (!target.closest("theme-toggle button")) return;
+        requestAnimationFrame(syncWwwLinksTheme);
+    });
+
+    const root = document.documentElement;
+    const observer = new MutationObserver((mutations) => {
+        for (const m of mutations) {
+            if (m.type === "attributes") {
+                syncWwwLinksTheme();
+                break;
+            }
+        }
+    });
+    observer.observe(root, {
+        attributes: true,
+        attributeFilter: ["class", "data-theme"],
+    });
+
+    window
+        .matchMedia("(prefers-color-scheme: dark)")
+        .addEventListener("change", () => syncWwwLinksTheme());
 </script>
 
 <style>
