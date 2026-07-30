@@ -27,7 +27,9 @@ npm install
 ## Development Commands
 
 ```bash
-npm run dev      # Start development server
+npm run dev      # Start development server (UI only)
+npm run dev:ui   # UI dev server (http://localhost:4321)
+npm run dev:cf   # Pages Functions + KV proxy (http://localhost:8788)
 npm run check    # Run Astro/TS checks
 npm run build    # Check + build
 npm run preview  # Preview build output
