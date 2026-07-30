@@ -50,12 +50,6 @@ public/
   favicon.svg
   favicon.png
   assets/
-.github/
-  workflows/
-    deploy-pages.yml
-    track-status-events.yml
-  scripts/
-    track-status-events.mjs
 astro.config.mjs
 package.json
 ```
@@ -73,37 +67,35 @@ Those Functions call `updown.io` server-side using `UPDOWN_API_KEY` secret, so A
 
 ## Automated Event Tracking (Maintenance/Incidents)
 
-### Legacy mode (GitHub Actions)
+### Cloudflare Pages Functions mode
 
-`track-status-events.yml` runs every 5 minutes and updates `public/events.json`
-
-- Recorded event types:
-  - `maintenance_started`
-  - `maintenance_ended`
-  - `incident_started`
-  - `incident_resolved`
-- Does not append when state is unchanged
-- On first run, creates a baseline only (no event generation)
-- Keeps only the last 7 days of events
-
-### API Key
-
-`UPDOWN_API_KEY` should be configured in GitHub Secrets when using the legacy workflow.
-No default API key is embedded.
-
-### Cloudflare Worker Runtime mode (recommended for Pages)
-
-A runtime endpoint is available at `functions/api/events.json.ts`.
-It stores and serves events data from Cloudflare KV and refreshes from updown when stale.
+`functions/api/events.json.ts` reads event history from Cloudflare KV.
+If KV data is stale, it refreshes from updown and writes back to KV.
 
 Required Cloudflare bindings/secrets:
 
 - KV binding: `STATUS_EVENTS`
-- Secret (optional but recommended): `UPDOWN_API_KEY`
+- Secret: `UPDOWN_API_KEY`
 
-The browser now fetches event data from `/api/events.json`.
+### Cloudflare Cron Worker mode (near real-time, recommended)
 
-After enabling this mode, you can disable `track-status-events.yml` if you no longer want GitHub-commit based updates.
+To keep KV warm without waiting for page traffic, this repo includes a dedicated scheduled Worker:
+
+- Worker entry: `workers/status-events-cron.ts`
+- Worker config: `wrangler.events-cron.toml`
+- Cron: every minute (`*/1 * * * *`)
+
+Deploy steps:
+
+```bash
+npx wrangler secret put UPDOWN_API_KEY -c wrangler.events-cron.toml
+npx wrangler deploy -c wrangler.events-cron.toml
+```
+
+After deploy, KV is updated every minute by Cron, and `/api/events.json` serves the latest KV data.
+
+GitHub Actions based tracking/deploy has been removed from this repository.
+Cloudflare Pages + Worker Cron is the single source of truth for production updates.
 
 ## UI Notes (Current)
 
