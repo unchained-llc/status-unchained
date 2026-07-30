@@ -373,3 +373,10 @@
 /* Light mode: make Today operational LED less washed out on white background */
 :root.theme-light .status-page .service-row.is-up .history-day:nth-child(7){box-shadow:0 0 10px color-mix(in srgb,var(--status-operational),transparent 42%),0 0 20px color-mix(in srgb,var(--status-operational),transparent 62%)!important}
 @media(prefers-color-scheme:light){:root:not(.theme-dark) .status-page .service-row.is-up .history-day:nth-child(7){box-shadow:0 0 10px color-mix(in srgb,var(--status-operational),transparent 42%),0 0 20px color-mix(in srgb,var(--status-operational),transparent 62%)!important}}
+
+/* Events freshness indicator */
+.events-freshness{font-size:.66rem;line-height:1.2;white-space:nowrap;color:var(--muted)}
+.events-freshness.is-fresh{color:color-mix(in srgb,var(--status-operational),var(--text) 28%)}
+.events-freshness.is-stale{color:color-mix(in srgb,var(--status-outage),var(--text) 24%)}
+.status-overview.has-stale-data .overview-dot{background:var(--warning);box-shadow:0 0 12px color-mix(in srgb,var(--warning),transparent 55%)}
+@media(max-width:38rem){.events-freshness{white-space:normal}}
