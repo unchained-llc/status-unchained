@@ -6,8 +6,10 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..', '..');
 const EVENTS_PATH = path.join(ROOT, 'public', 'events.json');
 
-const DEFAULT_API_KEY = 'ro-REDACTED';
-const apiKey = process.env.UPDOWN_API_KEY || process.env.STATUS_UPDOWN_KEY || DEFAULT_API_KEY;
+const apiKey = process.env.UPDOWN_API_KEY || process.env.STATUS_UPDOWN_KEY;
+if (!apiKey) {
+  throw new Error('UPDOWN_API_KEY (or STATUS_UPDOWN_KEY) is required');
+}
 
 /** @typedef {'operational'|'maintenance'|'disruption'} ServiceState */
 

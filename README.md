@@ -62,16 +62,18 @@ package.json
 
 ## Data Fetching
 
-`src/pages/index.astro` uses the `updown.io` API to fetch:
+The browser fetches service data from same-origin proxy endpoints powered by Pages Functions:
 
-- Check list: `/api/checks`
-- Downtime history: `/api/checks/{token}/downtimes`
-- Metrics: `/api/checks/{token}/metrics`
+- `/api/checks`
+- `/api/checks/{token}/downtimes`
+- `/api/checks/{token}/metrics`
+- `/api/events.json`
 
-The current implementation references a read-only API key in the page
-Depending on your operational requirements, consider switching to environment variables or a proxy API
+Those Functions call `updown.io` server-side using `UPDOWN_API_KEY` secret, so API keys are not exposed to clients.
 
 ## Automated Event Tracking (Maintenance/Incidents)
+
+### Legacy mode (GitHub Actions)
 
 `track-status-events.yml` runs every 5 minutes and updates `public/events.json`
 
@@ -86,8 +88,22 @@ Depending on your operational requirements, consider switching to environment va
 
 ### API Key
 
-If `UPDOWN_API_KEY` is configured in GitHub Secrets, it is used with priority
-If not configured, the default key in the script is used
+`UPDOWN_API_KEY` should be configured in GitHub Secrets when using the legacy workflow.
+No default API key is embedded.
+
+### Cloudflare Worker Runtime mode (recommended for Pages)
+
+A runtime endpoint is available at `functions/api/events.json.ts`.
+It stores and serves events data from Cloudflare KV and refreshes from updown when stale.
+
+Required Cloudflare bindings/secrets:
+
+- KV binding: `STATUS_EVENTS`
+- Secret (optional but recommended): `UPDOWN_API_KEY`
+
+The browser now fetches event data from `/api/events.json`.
+
+After enabling this mode, you can disable `track-status-events.yml` if you no longer want GitHub-commit based updates.
 
 ## UI Notes (Current)
 
