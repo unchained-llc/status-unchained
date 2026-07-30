@@ -410,4 +410,7 @@
 .status-page .service-result .history-event-popover-item .item-title .item-count{display:inline-flex;align-items:center;flex:0 0 auto;margin-left:0;padding:.13rem .54rem;border-radius:999px;border:1px solid color-mix(in srgb,var(--line),transparent 30%);background:color-mix(in srgb,var(--bg),transparent 14%);color:color-mix(in srgb,var(--accent),white 8%);font-size:.66rem;line-height:1;font-weight:400;font-variant-numeric:tabular-nums;white-space:nowrap}
 .status-page .service-result .history-event-popover-item .item-meta{margin:2px 0 0;font-size:13px;font-weight:500;line-height:1.2;color:color-mix(in srgb,var(--text),transparent 26%);font-variant-numeric:tabular-nums}
 
-@media(max-width:38rem){.status-page .service-result .history-event-badge{font-size:.7rem}.status-page .service-result .history-event-popover{display:none}}
+@media(max-width:38rem){
+  .status-page .service-result .history-event-badge{font-size:.7rem}
+  .status-page .service-result .history-event-popover{position:fixed;left:1rem;right:1rem;top:auto;bottom:calc(1rem + env(safe-area-inset-bottom));width:auto;min-width:unset;max-width:none;z-index:30;pointer-events:auto}
+}
