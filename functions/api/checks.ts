@@ -1,21 +1,19 @@
 import { json, updownJson } from '../_lib/updown'
+import { loadStatusSnapshot, type SnapshotCheck } from '../_lib/status-snapshot'
 
-type Env = { UPDOWN_API_KEY?: string }
-
-type Check = {
-  token: string
-  url: string
-  alias?: string
-  enabled: boolean
-  published: boolean
-  down: boolean
-  uptime: number
-  last_check_at: string
+type Env = {
+  STATUS_EVENTS: { get(key: string): Promise<string | null> }
+  UPDOWN_API_KEY?: string
 }
 
 export const onRequestGet = async ({ env }: { env: Env }) => {
   try {
-    const checks = await updownJson<Check[]>(env, '/api/checks')
+    const snapshot = await loadStatusSnapshot(env)
+    if (Array.isArray(snapshot.checks) && snapshot.checks.length > 0) {
+      return json(snapshot.checks)
+    }
+
+    const checks = await updownJson<SnapshotCheck[]>(env, '/api/checks')
     return json(checks)
   } catch (error) {
     const message = error instanceof Error ? error.message : 'internal_error'
