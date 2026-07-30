@@ -266,14 +266,14 @@
 .status-page .history-card::before{display:none}
 
 .status-page .history-card-head{display:flex;align-items:center;justify-content:space-between;gap:.65rem}
-.status-page .history-card-date{margin:0;font-size:12px;font-weight:500;line-height:1.2;color:color-mix(in srgb,var(--text),transparent 40%);font-variant-numeric:tabular-nums}
-.status-page .history-card-count{display:inline-flex;align-items:center;padding:.18rem .5rem;border-radius:999px;border:1px solid color-mix(in srgb,var(--line),transparent 30%);background:color-mix(in srgb,var(--bg),transparent 14%);font-size:10px;line-height:1;color:color-mix(in srgb,var(--accent),white 8%);font-weight:600;letter-spacing:.02em;font-variant-numeric:tabular-nums}
+.status-page .history-card-date{margin:0;font-size:12px;font-weight:400;line-height:1.2;color:color-mix(in srgb,var(--text),transparent 40%);font-variant-numeric:tabular-nums}
+.status-page .history-card-count{display:inline-flex;align-items:center;padding:.18rem .5rem;border-radius:999px;border:1px solid color-mix(in srgb,var(--line),transparent 30%);background:color-mix(in srgb,var(--bg),transparent 14%);font-size:10px;line-height:1;color:color-mix(in srgb,var(--accent),white 8%);font-weight:500;letter-spacing:.02em;font-variant-numeric:tabular-nums}
 .status-page .history-card-list{display:grid;gap:6px;margin:6px 0 0;padding:0}
 .status-page .history-card-entry{display:grid;gap:0;margin:0;padding:0;border:0;background:none}
 .status-page .history-card-line{display:grid!important;grid-template-columns:minmax(0,1fr);align-items:start;gap:.5rem;min-width:0}
 .status-page .history-card-left{display:grid;grid-template-columns:.82rem minmax(0,1fr);align-items:start;gap:.56rem;min-width:0}
 .status-page .history-card-copy{min-width:0}
-.status-page .history-card-title{margin:0;font-size:15px;font-weight:500;line-height:1.2;color:var(--text)}
+.status-page .history-card-title{margin:0;font-size:15px;font-weight:300;line-height:1.2;color:var(--text)}
 .status-page .history-card-meta-line{margin:2px 0 0;display:inline-flex;align-items:center;gap:.45rem;font-size:13px;font-weight:400;line-height:1.22;color:var(--muted);font-variant-numeric:tabular-nums}
 .status-page .history-card-meta-line .sep{opacity:.45}
 .status-page .history-card-duration{font-size:13px;font-weight:500;color:color-mix(in srgb,var(--text),transparent 26%)}
@@ -386,27 +386,28 @@
 .status-page .service-headline h2{min-width:0}
 .status-page .service-result{gap:clamp(1.2rem,4vw,3.2rem)}
 .status-page .service-result .status-with-badge{position:relative;display:inline-flex;align-items:center;gap:.56rem}
-.status-page .service-result .history-event-badge{display:inline-flex;align-items:center;gap:.28rem;color:color-mix(in srgb,var(--accent),var(--text) 30%);font-size:.74rem;font-weight:600;line-height:1;font-variant-numeric:tabular-nums;white-space:nowrap;cursor:default}
+.status-page .service-result .history-event-badge{display:inline-flex;align-items:center;gap:.28rem;color:color-mix(in srgb,var(--accent),var(--text) 30%);font-family:'Exo 2',system-ui,sans-serif;font-size:.74rem;font-weight:600;line-height:1;font-variant-numeric:tabular-nums;white-space:nowrap;cursor:default}
 .status-page .service-result .history-event-badge::before{content:'';width:.44rem;height:.44rem;border-radius:50%;background:color-mix(in srgb,var(--accent),white 10%);box-shadow:0 0 0 1px color-mix(in srgb,var(--line),transparent 30%),0 0 8px color-mix(in srgb,var(--accent),transparent 76%)}
 .status-page .service-result .history-event-badge[hidden]{display:none!important}
 
-.status-page .service-result .history-event-popover{position:absolute;right:0;top:calc(100% + .5rem);z-index:24;width:min(23rem,calc(100vw - 2rem));min-width:16rem;padding:.58rem .66rem;border:1px solid color-mix(in srgb,var(--line),transparent 16%);border-radius:11px;background:rgba(255,255,255,.94);box-shadow:0 8px 18px rgba(18,28,53,.10);color:var(--text);opacity:0;transform:translateY(-2px);transition:opacity 100ms ease,transform 100ms ease;pointer-events:none}
+.status-page .service-result .history-event-popover{position:absolute;right:0;top:calc(100% + .5rem);z-index:24;width:min(23rem,calc(100vw - 2rem));min-width:16rem;padding:.58rem .66rem;border:1px solid color-mix(in srgb,var(--line),transparent 16%);border-radius:11px;background:rgba(255,255,255,.94);box-shadow:0 8px 18px rgba(18,28,53,.10);color:var(--text);font-family:'Exo 2',system-ui,sans-serif;opacity:0;transform:translateY(-2px);transition:opacity 100ms ease,transform 100ms ease;pointer-events:none}
 :root.theme-dark .status-page .service-result .history-event-popover{background:rgba(12,16,24,.9);box-shadow:0 10px 22px rgba(0,0,0,.3)}
 .status-page .service-result .history-event-popover.is-open{opacity:1;transform:translateY(0)}
 .status-page .service-result .history-event-popover-head{margin-bottom:.35rem}
 .status-page .service-result .history-event-popover-label{margin:0;font-size:.74rem;font-weight:600;line-height:1.2;color:color-mix(in srgb,var(--accent),var(--text) 24%)}
-.status-page .service-result .history-event-popover-day{padding-top:.34rem;border-top:1px solid color-mix(in srgb,var(--line),transparent 34%)}
-.status-page .service-result .history-event-popover-day:first-of-type{padding-top:0;border-top:0}
+.status-page .service-result .history-event-popover-day{padding-top:.3rem;border-top:0}
+.status-page .service-result .history-event-popover-day:first-of-type{padding-top:0}
 .status-page .service-result .history-event-popover-date{margin:0 0 .2rem;font-size:.68rem;font-weight:600;line-height:1.2;color:color-mix(in srgb,var(--text),transparent 38%);font-variant-numeric:tabular-nums}
 .status-page .service-result .history-event-popover-list{margin:0;padding:0;list-style:none;display:grid;gap:6px}
-.status-page .service-result .history-event-popover-item{display:grid;grid-template-columns:.82rem minmax(0,1fr);align-items:start;gap:.56rem;min-width:0}
-.status-page .service-result .history-event-popover-item .marker{position:relative;display:block;width:.56rem;height:.56rem;margin-top:.15rem}
+.status-page .service-result .history-event-popover-item{display:grid;grid-template-columns:.82rem minmax(0,1fr);align-items:center;gap:.56rem;min-width:0}
+.status-page .service-result .history-event-popover-item .marker{position:relative;display:block;width:.56rem;height:.56rem;margin-top:0}
 .status-page .service-result .history-event-popover-item .marker.is-maintenance{background:var(--status-maintenance);border-radius:.08rem;transform:rotate(45deg)}
 .status-page .service-result .history-event-popover-item .marker.is-degraded{background:var(--status-outage);clip-path:polygon(25% 6.7%,75% 6.7%,100% 50%,75% 93.3%,25% 93.3%,0 50%)}
 .status-page .service-result .history-event-popover-item .marker.is-outage{background:var(--status-outage);border-radius:50%}
-.status-page .service-result .history-event-popover-item .body{min-width:0}
-.status-page .service-result .history-event-popover-item .item-title{margin:0;font-size:15px;font-weight:500;line-height:1.2;color:var(--text)}
-.status-page .service-result .history-event-popover-item .item-title .item-count{display:inline-flex;align-items:center;margin-left:.52rem;padding:.13rem .54rem;border-radius:999px;border:1px solid color-mix(in srgb,var(--line),transparent 30%);background:color-mix(in srgb,var(--bg),transparent 14%);color:color-mix(in srgb,var(--accent),white 8%);font-size:.66rem;line-height:1;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.status-page .service-result .history-event-popover-item .body{min-width:0;width:100%}
+.status-page .service-result .history-event-popover-item .item-title{margin:0;display:flex;align-items:center;justify-content:space-between;gap:.7rem;width:100%;font-size:15px;font-weight:300;line-height:1.2;color:var(--text)}
+.status-page .service-result .history-event-popover-item .item-title .item-label{min-width:0}
+.status-page .service-result .history-event-popover-item .item-title .item-count{display:inline-flex;align-items:center;flex:0 0 auto;margin-left:0;padding:.13rem .54rem;border-radius:999px;border:1px solid color-mix(in srgb,var(--line),transparent 30%);background:color-mix(in srgb,var(--bg),transparent 14%);color:color-mix(in srgb,var(--accent),white 8%);font-size:.66rem;line-height:1;font-weight:400;font-variant-numeric:tabular-nums;white-space:nowrap}
 .status-page .service-result .history-event-popover-item .item-meta{margin:2px 0 0;font-size:13px;font-weight:500;line-height:1.2;color:color-mix(in srgb,var(--text),transparent 26%);font-variant-numeric:tabular-nums}
 
 @media(max-width:38rem){.status-page .service-result .history-event-badge{font-size:.7rem}.status-page .service-result .history-event-popover{display:none}}
