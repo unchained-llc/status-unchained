@@ -1,0 +1,10 @@
+name = "status-events-cron"
+main = "workers/status-events-cron.ts"
+compatibility_date = "2026-07-30"
+
+[triggers]
+crons = ["*/1 * * * *"]
+
+[[kv_namespaces]]
+id = "6a495433dc4b40ecac1a328329474222"
+binding = "STATUS_EVENTS"
