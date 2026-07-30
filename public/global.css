@@ -230,7 +230,7 @@
 @keyframes outage-alert{0%,49%{opacity:1}50%,100%{opacity:0}}
 
 /* keep LED blinking while marker stays steady */
-.status-page .history-day:nth-child(7){--today-led-animation:meter-soft .32s steps(1,end) infinite}
+.status-page .history-day:nth-child(7){--today-led-animation:meter-random .5s steps(1,end) infinite;animation:var(--today-led-animation)!important}
 .status-page .service-row:not([data-token="2w7e"]) .history-day:nth-child(7){animation-delay:var(--today-led-delay,0ms)!important}
 .status-page .service-row[data-token="2w7e"].is-up .history-day:nth-child(7){animation:meter-random .5s steps(1,end) infinite!important;animation-delay:0ms!important}
 .status-page .service-row.is-maintenance .history-day:nth-child(7){--today-led-animation:maintenance-soft 2s ease-in-out infinite}
