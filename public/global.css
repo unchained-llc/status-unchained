@@ -380,3 +380,33 @@
 .events-freshness.is-stale{color:color-mix(in srgb,var(--status-outage),var(--text) 24%)}
 .status-overview.has-stale-data .overview-dot{background:var(--warning);box-shadow:0 0 12px color-mix(in srgb,var(--warning),transparent 55%)}
 @media(max-width:38rem){.events-freshness{white-space:normal}}
+
+/* service event badge (purple dot + count) */
+.status-page .service-headline{display:inline-flex;align-items:center;min-width:0}
+.status-page .service-headline h2{min-width:0}
+.status-page .service-result{gap:clamp(1.2rem,4vw,3.2rem)}
+.status-page .service-result .status-with-badge{position:relative;display:inline-flex;align-items:center;gap:.56rem}
+.status-page .service-result .history-event-badge{display:inline-flex;align-items:center;gap:.28rem;color:color-mix(in srgb,var(--accent),var(--text) 30%);font-size:.74rem;font-weight:600;line-height:1;font-variant-numeric:tabular-nums;white-space:nowrap;cursor:default}
+.status-page .service-result .history-event-badge::before{content:'';width:.44rem;height:.44rem;border-radius:50%;background:color-mix(in srgb,var(--accent),white 10%);box-shadow:0 0 0 1px color-mix(in srgb,var(--line),transparent 30%),0 0 8px color-mix(in srgb,var(--accent),transparent 76%)}
+.status-page .service-result .history-event-badge[hidden]{display:none!important}
+
+.status-page .service-result .history-event-popover{position:absolute;right:0;top:calc(100% + .5rem);z-index:24;width:min(23rem,calc(100vw - 2rem));min-width:16rem;padding:.58rem .66rem;border:1px solid color-mix(in srgb,var(--line),transparent 16%);border-radius:11px;background:rgba(255,255,255,.94);box-shadow:0 8px 18px rgba(18,28,53,.10);color:var(--text);opacity:0;transform:translateY(-2px);transition:opacity 100ms ease,transform 100ms ease;pointer-events:none}
+:root.theme-dark .status-page .service-result .history-event-popover{background:rgba(12,16,24,.9);box-shadow:0 10px 22px rgba(0,0,0,.3)}
+.status-page .service-result .history-event-popover.is-open{opacity:1;transform:translateY(0)}
+.status-page .service-result .history-event-popover-head{margin-bottom:.35rem}
+.status-page .service-result .history-event-popover-label{margin:0;font-size:.74rem;font-weight:600;line-height:1.2;color:color-mix(in srgb,var(--accent),var(--text) 24%)}
+.status-page .service-result .history-event-popover-day{padding-top:.34rem;border-top:1px solid color-mix(in srgb,var(--line),transparent 34%)}
+.status-page .service-result .history-event-popover-day:first-of-type{padding-top:0;border-top:0}
+.status-page .service-result .history-event-popover-date{margin:0 0 .2rem;font-size:.68rem;font-weight:600;line-height:1.2;color:color-mix(in srgb,var(--text),transparent 38%);font-variant-numeric:tabular-nums}
+.status-page .service-result .history-event-popover-list{margin:0;padding:0;list-style:none;display:grid;gap:6px}
+.status-page .service-result .history-event-popover-item{display:grid;grid-template-columns:.82rem minmax(0,1fr);align-items:start;gap:.56rem;min-width:0}
+.status-page .service-result .history-event-popover-item .marker{position:relative;display:block;width:.56rem;height:.56rem;margin-top:.15rem}
+.status-page .service-result .history-event-popover-item .marker.is-maintenance{background:var(--status-maintenance);border-radius:.08rem;transform:rotate(45deg)}
+.status-page .service-result .history-event-popover-item .marker.is-degraded{background:var(--status-outage);clip-path:polygon(25% 6.7%,75% 6.7%,100% 50%,75% 93.3%,25% 93.3%,0 50%)}
+.status-page .service-result .history-event-popover-item .marker.is-outage{background:var(--status-outage);border-radius:50%}
+.status-page .service-result .history-event-popover-item .body{min-width:0}
+.status-page .service-result .history-event-popover-item .item-title{margin:0;font-size:15px;font-weight:500;line-height:1.2;color:var(--text)}
+.status-page .service-result .history-event-popover-item .item-title .item-count{margin-left:.48rem;color:color-mix(in srgb,var(--accent),var(--text) 30%);font-weight:600;font-variant-numeric:tabular-nums}
+.status-page .service-result .history-event-popover-item .item-meta{margin:2px 0 0;font-size:13px;font-weight:500;line-height:1.2;color:color-mix(in srgb,var(--text),transparent 26%);font-variant-numeric:tabular-nums}
+
+@media(max-width:38rem){.status-page .service-result .history-event-badge{font-size:.7rem}.status-page .service-result .history-event-popover{display:none}}
