@@ -298,7 +298,7 @@
 .status-page .history-dayline-base{position:absolute;left:0;right:0;top:4px;height:1.5px;border-radius:999px;background:color-mix(in srgb,var(--line),transparent 34%)}
 .status-page .history-dayline-progress{position:absolute;left:0;top:3px;height:3px;border-radius:999px;background:var(--status-operational)}
 .status-page .history-dayline-tick{position:absolute;top:1px;width:1px;height:7px;background:color-mix(in srgb,var(--line),transparent 28%);transform:translateX(-50%)}
-.status-page .history-dayline-highlight{position:absolute;top:3px;height:3px;min-width:10px;border-radius:999px;z-index:1}
+.status-page .history-dayline-highlight{position:absolute;top:3px;height:3px;min-width:2px;border-radius:999px;z-index:1}
 .status-page .history-dayline-highlight.is-maintenance{background:color-mix(in srgb,var(--status-maintenance),#b88b42 22%)}
 .status-page .history-dayline-highlight.is-degraded{background:var(--status-outage)}
 .status-page .history-dayline-highlight.is-outage{background:var(--status-outage)}
