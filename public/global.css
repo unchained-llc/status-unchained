@@ -386,8 +386,9 @@
 .status-page .service-headline h2{min-width:0}
 .status-page .service-result{gap:clamp(1.2rem,4vw,3.2rem)}
 .status-page .service-result .status-with-badge{position:relative;display:inline-flex;align-items:center;gap:.56rem}
-.status-page .service-result .history-event-badge{display:inline-flex;align-items:center;gap:.28rem;color:color-mix(in srgb,var(--accent),var(--text) 30%);font-family:'Exo 2',system-ui,sans-serif;font-size:.74rem;font-weight:600;line-height:1;font-variant-numeric:tabular-nums;white-space:nowrap;cursor:default}
+.status-page .service-result .history-event-badge{position:relative;z-index:1;display:inline-flex;align-items:center;gap:.28rem;padding:.24rem .36rem;margin:-.24rem -.36rem;border:0;background:transparent;appearance:none;color:color-mix(in srgb,var(--accent),var(--text) 30%);font-family:'Exo 2',system-ui,sans-serif;font-size:.74rem;font-weight:600;line-height:1;font-variant-numeric:tabular-nums;white-space:nowrap;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .status-page .service-result .history-event-badge::before{content:'';width:.44rem;height:.44rem;border-radius:50%;background:color-mix(in srgb,var(--accent),white 10%);box-shadow:0 0 0 1px color-mix(in srgb,var(--line),transparent 30%),0 0 8px color-mix(in srgb,var(--accent),transparent 76%)}
+.status-page .service-result .history-event-badge::after{content:'';position:absolute;left:-12px;right:-12px;top:-12px;bottom:-12px}
 .status-page .service-result .history-event-badge[hidden]{display:none!important}
 
 .status-page .service-result .history-event-popover{position:absolute;right:0;top:calc(100% + .5rem);z-index:24;width:min(23rem,calc(100vw - 2rem));min-width:16rem;padding:.58rem .66rem;border:1px solid color-mix(in srgb,var(--line),transparent 16%);border-radius:11px;background:rgba(255,255,255,.94);box-shadow:0 8px 18px rgba(18,28,53,.10);color:var(--text);font-family:'Exo 2',system-ui,sans-serif;opacity:0;transform:translateY(-2px);transition:opacity 100ms ease,transform 100ms ease;pointer-events:none}
@@ -412,5 +413,5 @@
 
 @media(max-width:38rem){
   .status-page .service-result .history-event-badge{font-size:.7rem}
-  .status-page .service-result .history-event-popover{position:fixed;left:1rem;right:1rem;top:auto;bottom:calc(1rem + env(safe-area-inset-bottom));width:auto;min-width:unset;max-width:none;z-index:30;pointer-events:auto}
+  .status-page .service-result .history-event-popover{position:absolute;left:0;right:auto;top:calc(100% + .5rem);bottom:auto;width:min(23rem,calc(100vw - 2rem));min-width:14rem;max-width:calc(100vw - 2rem);z-index:30;pointer-events:auto}
 }
