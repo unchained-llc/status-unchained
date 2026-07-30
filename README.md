@@ -1,22 +1,46 @@
 # UNCHAINED Status Page
 
-Status page for `status.unchained.co.jp`
-Built with Astro and displays check results from `updown.io`
+Status page for `https://status.unchained.co.jp`.
+Built with Astro + Cloudflare Pages Functions, backed by updown.io and Cloudflare KV.
 
 ## Overview
 
-- Displays a list of service health statuses
-- Shows overall status (Operational / Maintenance / Disruption)
-- Displays 7-day history bars
-- Displays relative time since the last check
-- Displays 7-Day Uptime
+This project renders a 7-day status timeline per service and keeps data fresh via Cloudflare Cron Worker.
+
+- Overall status summary (`Operational / Maintenance / Disruption`)
+- Per-service status rows with 7-day timeline
+- Timeline event details (maintenance / incident windows)
+- Relative freshness indicator (`Synced` / `Delayed`)
+- Localized date/time rendering in browser locale
+  - time range in local time
+  - timezone label (for example `JST`, `BST`, or `GMT+9` depending on browser)
+  - locale-aware date format
 
 ## Tech Stack
 
 - Astro `^7.0.9`
 - TypeScript `^5.9.3`
-- @astrojs/check `^0.9.6`
+- Cloudflare Pages Functions
+- Cloudflare Workers (Cron trigger)
+- Cloudflare KV (`STATUS_EVENTS`)
 - Node.js `>=22.12.0`
+
+## Requirements
+
+- Node.js `>=22.12.0`
+- npm
+- updown.io API key
+- Cloudflare account (for Pages/Workers/KV deployment)
+
+## Environment Variables
+
+Create `.env` for local Cloudflare dev:
+
+```env
+UPDOWN_API_KEY=your_updown_api_key
+```
+
+Used by Pages Functions and Worker to call updown.io.
 
 ## Setup
 
@@ -27,91 +51,133 @@ npm install
 ## Development Commands
 
 ```bash
-npm run dev        # Start development server (UI only)
-npm run dev:ui     # UI dev server (http://localhost:4321)
-npm run dev:cf     # Pages Functions + KV proxy over dev:ui (http://localhost:8788)
-npm run dev:cf:dist # Pages Functions + KV serving prebuilt dist only
-npm run check      # Run Astro/TS checks
-npm run build      # Check + build
-npm run preview    # Preview build output
+npm run dev          # Astro dev server
+npm run dev:ui       # UI dev server (http://localhost:4321)
+npm run dev:cf       # Pages Functions + KV proxy over dev:ui (http://localhost:8788)
+npm run dev:cf:dist  # Pages Functions + KV serving prebuilt dist only
+npm run check        # Astro/TS checks
+npm run build        # Check + build
+npm run preview      # Preview build output
 ```
 
-## Local Development Workflow (Recommended)
+## Recommended Local Workflow
 
-For fast UI iteration and accurate Cloudflare API/KV behavior, run two processes:
+Run these in parallel:
 
-1. `npm run dev:ui` (Astro HMR, fastest feedback for UI/CSS)
-2. `npm run dev:cf` (Pages Functions + KV at `http://localhost:8788`)
+1. `npm run dev:ui` (fast UI iteration with HMR)
+2. `npm run dev:cf` (verify `/api/*`, KV behavior, and end-to-end page behavior)
 
-Use `http://localhost:4321` while styling/DOM-tuning, and use `http://localhost:8788` for `/api/*` behavior checks.
+Use:
 
-`dev:cf:dist` is for static-dist verification only and may not reflect live source edits until rebuilt.
+- `http://localhost:4321` for UI/CSS iteration
+- `http://localhost:8788` for API/KV-integrated behavior
 
-## Build Output
+`dev:cf:dist` is for static-dist verification and does not reflect source edits until rebuild.
 
-- Output directory: `dist/`
-- Site config: `astro.config.mjs` (`site: https://status.unchained.co.jp`)
+## Runtime Architecture
 
-## Directory Structure
+### Data flow
 
-```txt
-src/
-  pages/
-    index.astro      # Main page (SSR initial render + client updates)
-public/
-  global.css         # Global styles
-  favicon.svg
-  favicon.png
-  assets/
-astro.config.mjs
-package.json
-```
+1. Cron Worker fetches updown.io and refreshes KV snapshots
+2. Pages Functions read from KV (fallback to updown.io when needed)
+3. Browser fetches same-origin APIs (`/api/checks`, `/api/events.json`)
 
-## Data Fetching
+### KV documents
 
-The browser fetches service data from same-origin proxy endpoints powered by Pages Functions:
+- `events.json`
+  - event history and per-token latest state
+  - includes `generated_at` (updated only when effective content changes)
+- `status.snapshot.v1.json`
+  - enriched checks with 7-day history + period uptime
+  - includes `generated_at` (updated only when checks payload changes)
 
-- `/api/checks`
-- `/api/events.json`
+### Freshness semantics
 
-Primary data path is KV-backed (`STATUS_EVENTS`) via Cron Worker snapshots.
-Per-token endpoints (`/api/checks/{token}/downtimes`, `/api/checks/{token}/metrics`) remain only as fallback paths.
+`/api/events.json` returns `checked_at` on each successful request.
 
-## Automated Event Tracking (Maintenance/Incidents)
+- UI freshness badge (`Synced` / `Delayed`) is based on `checked_at`
+- UI rerender decision for event payload changes uses `generated_at`
 
-### Cloudflare Pages Functions mode
+This avoids false `Delayed` states after write-skip optimization.
 
-`functions/api/events.json.ts` reads event history from Cloudflare KV.
-If KV data is stale, it refreshes from updown and writes back to KV.
+## API Endpoints
 
-Required Cloudflare bindings/secrets:
+- `GET /api/checks`
+  - Primary: returns KV snapshot (`status.snapshot.v1.json`)
+  - Fallback: direct updown.io `/api/checks`
+- `GET /api/events.json`
+  - Returns KV-backed events doc + `checked_at`
+  - Refreshes from updown when KV is stale
+- `GET /api/checks/{token}/downtimes`
+- `GET /api/checks/{token}/metrics?from=...&to=...`
+  - per-token endpoints are kept as fallback/debug paths
 
-- KV binding: `STATUS_EVENTS`
-- Secret: `UPDOWN_API_KEY`
+## Cron Worker
 
-### Cloudflare Cron Worker mode (near real-time, recommended)
+Worker files:
 
-To keep KV warm without waiting for page traffic, this repo includes a dedicated scheduled Worker:
+- Entry: `workers/status-events-cron.ts`
+- Config: `wrangler.events-cron.toml`
+- Schedule: `*/1 * * * *` (every minute)
 
-- Worker entry: `workers/status-events-cron.ts`
-- Worker config: `wrangler.events-cron.toml`
-- Cron: every minute (`*/1 * * * *`)
-
-Deploy steps:
+Deploy Worker:
 
 ```bash
 npx wrangler secret put UPDOWN_API_KEY -c wrangler.events-cron.toml
 npx wrangler deploy -c wrangler.events-cron.toml
 ```
 
-After deploy, KV is updated every minute by Cron, and `/api/events.json` serves the latest KV data.
+## Build Output
 
-GitHub Actions based tracking/deploy has been removed from this repository.
-Cloudflare Pages + Worker Cron is the single source of truth for production updates.
+- Output directory: `dist/`
+- Site setting: `astro.config.mjs` (`site: https://status.unchained.co.jp`)
 
-## UI Notes (Current)
+## Directory Structure
 
-- Applies state-specific effects to the rightmost “current indicator”
-  - Normal (green): rapid blink + fixed glow
-  - Maintenance (yellow): slow breathing (no glow)
-  - Incident (red): fixed display (no glow)
+```txt
+src/
+  pages/
+    index.astro                 # Main page (SSR + client refresh logic)
+public/
+  global.css                    # Global styles
+  favicon.svg
+  favicon.png
+functions/
+  api/
+    checks.ts                   # Snapshot-first checks API
+    events.json.ts              # Events API (+ checked_at)
+    checks/[token]/
+      downtimes.ts              # Fallback per-check downtimes proxy
+      metrics.ts                # Fallback per-check metrics proxy
+  _lib/
+    status-events.ts            # events.json refresh logic
+    status-snapshot.ts          # snapshot refresh logic
+workers/
+  status-events-cron.ts         # Scheduled refresh worker
+wrangler.events-cron.toml
+astro.config.mjs
+package.json
+```
+
+## Browser Verification Checklist
+
+After deployment or cache-sensitive changes:
+
+1. Open status page and hard reload
+2. Verify time/date localization
+   - time is local (not fixed UTC)
+   - timezone label is shown in timeline times
+   - date format follows browser locale
+3. Verify event/timeline interactions
+   - badge tap/click open-close behavior
+   - outside click closes popups
+   - mobile Safari tap does not double-trigger
+4. Verify freshness badge
+   - `Synced · ... ago` updates continuously
+   - no unexpected `Delayed` when API calls succeed
+
+## Notes
+
+- GitHub Actions based status tracking was removed.
+- Production data refresh is managed by Cloudflare Pages + Cron Worker.
+- Browsers may render timezone names differently (`JST` vs `GMT+9`) based on Intl implementation.
