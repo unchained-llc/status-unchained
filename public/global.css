@@ -282,7 +282,7 @@
 .status-page .history-card-status.is-ongoing{color:color-mix(in srgb,var(--status-maintenance),black 30%)}
 .status-page .history-card-event-icon{position:relative;display:block;width:.72rem;height:.72rem;margin-top:.15rem}
 .status-page .history-card-event-icon.is-maintenance::before{content:'';position:absolute;inset:0;margin:auto;width:.56rem;height:.56rem;background:var(--status-maintenance);transform:rotate(45deg);border-radius:.08rem}
-.status-page .history-card-event-icon.is-degraded::before{content:'';position:absolute;inset:0;margin:auto;width:.54rem;height:.54rem;clip-path:polygon(25% 6.7%,75% 6.7%,100% 50%,75% 93.3%,25% 93.3%,0 50%);background:var(--status-outage)!important}
+.status-page .history-card-event-icon.is-degraded::before{content:'';position:absolute;inset:0;margin:auto;width:.56rem;height:.56rem;border-radius:50%;background:var(--status-outage)!important}
 .status-page .history-card-event-icon.is-outage::before{content:'';position:absolute;inset:0;margin:auto;width:.56rem;height:.56rem;border-radius:50%;background:var(--status-outage)}
 .status-page .history-card-empty{margin:0;font-size:13px;line-height:1.25;color:var(--muted)}
 
@@ -406,7 +406,7 @@
 .status-page .service-result .history-event-popover-item{display:grid;grid-template-columns:.82rem minmax(0,1fr);align-items:center;gap:.56rem;min-width:0}
 .status-page .service-result .history-event-popover-item .marker{position:relative;display:block;width:.56rem;height:.56rem;margin-top:0}
 .status-page .service-result .history-event-popover-item .marker.is-maintenance{background:var(--status-maintenance);border-radius:.08rem;transform:rotate(45deg)}
-.status-page .service-result .history-event-popover-item .marker.is-degraded{background:var(--status-outage);clip-path:polygon(25% 6.7%,75% 6.7%,100% 50%,75% 93.3%,25% 93.3%,0 50%)}
+.status-page .service-result .history-event-popover-item .marker.is-degraded{background:var(--status-outage);border-radius:50%}
 .status-page .service-result .history-event-popover-item .marker.is-outage{background:var(--status-outage);border-radius:50%}
 .status-page .service-result .history-event-popover-item .body{min-width:0;width:100%}
 .status-page .service-result .history-event-popover-item .item-title{margin:0;display:flex;align-items:center;justify-content:space-between;gap:.7rem;width:100%;font-size:15px;font-weight:300;line-height:1.2;color:var(--text)}
