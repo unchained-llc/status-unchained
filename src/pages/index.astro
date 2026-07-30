@@ -167,6 +167,20 @@ const dateFmt = (s: string) => new Intl.DateTimeFormat(undefined, { month: 'shor
       const getThemePreference = () => {
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         const osTheme = prefersDark ? 'dark' : 'light';
+        const url = new URL(window.location.href);
+        const themeParam = url.searchParams.get('theme');
+        if (themeParam === 'dark' || themeParam === 'light') {
+          if (typeof localStorage !== 'undefined') {
+            localStorage.setItem('theme', themeParam);
+            localStorage.setItem('theme-user', '1');
+            localStorage.setItem('theme-user-at', String(Date.now()));
+            localStorage.setItem('theme-os-at-set', osTheme);
+          }
+          url.searchParams.delete('theme');
+          const next = `${url.pathname}${url.search}${url.hash}`;
+          window.history.replaceState({}, '', next || '/');
+          return { theme: themeParam, source: 'link' };
+        }
         if (typeof localStorage === 'undefined') return { theme: osTheme, source: 'os' };
         const userSet = localStorage.getItem('theme-user') === '1';
         const stored = localStorage.getItem('theme');
