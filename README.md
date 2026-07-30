@@ -27,13 +27,25 @@ npm install
 ## Development Commands
 
 ```bash
-npm run dev      # Start development server (UI only)
-npm run dev:ui   # UI dev server (http://localhost:4321)
-npm run dev:cf   # Pages Functions + KV proxy (http://localhost:8788)
-npm run check    # Run Astro/TS checks
-npm run build    # Check + build
-npm run preview  # Preview build output
+npm run dev        # Start development server (UI only)
+npm run dev:ui     # UI dev server (http://localhost:4321)
+npm run dev:cf     # Pages Functions + KV proxy over dev:ui (http://localhost:8788)
+npm run dev:cf:dist # Pages Functions + KV serving prebuilt dist only
+npm run check      # Run Astro/TS checks
+npm run build      # Check + build
+npm run preview    # Preview build output
 ```
+
+## Local Development Workflow (Recommended)
+
+For fast UI iteration and accurate Cloudflare API/KV behavior, run two processes:
+
+1. `npm run dev:ui` (Astro HMR, fastest feedback for UI/CSS)
+2. `npm run dev:cf` (Pages Functions + KV at `http://localhost:8788`)
+
+Use `http://localhost:4321` while styling/DOM-tuning, and use `http://localhost:8788` for `/api/*` behavior checks.
+
+`dev:cf:dist` is for static-dist verification only and may not reflect live source edits until rebuilt.
 
 ## Build Output
 
