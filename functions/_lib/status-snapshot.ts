@@ -140,8 +140,14 @@ const enrichCheck = async (env: SnapshotEnv, check: RawCheck): Promise<SnapshotC
 
 export const refreshStatusSnapshot = async (env: SnapshotEnv): Promise<StatusSnapshotDoc> => {
   const generatedAt = new Date().toISOString()
+  const previous = await loadStatusSnapshot(env)
   const checks = await updownJson<RawCheck[]>(env, '/api/checks')
   const enrichedChecks = await Promise.all(checks.map((check) => enrichCheck(env, check)))
+
+  if (JSON.stringify(previous.checks) === JSON.stringify(enrichedChecks)) {
+    return previous
+  }
+
   const doc: StatusSnapshotDoc = { generated_at: generatedAt, checks: enrichedChecks }
   await env.STATUS_EVENTS.put(SNAPSHOT_KEY, JSON.stringify(doc))
   return doc
