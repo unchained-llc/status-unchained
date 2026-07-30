@@ -483,6 +483,9 @@ const dateFmt = (s: string) => new Intl.DateTimeFormat(undefined, { month: 'shor
 
       const updateHistory=async(row:HTMLElement,check:Check)=>{try{if(Array.isArray(check.history)&&check.history.length===7){renderHistoryDays(row,check,check.history);return}const response=await fetch(`/api/checks/${encodeURIComponent(check.token)}/downtimes`);const downtimes=await response.json() as Downtime[];const dates=Array.from({length:7},(_,index)=>{const date=new Date();date.setUTCHours(0,0,0,0);date.setUTCDate(date.getUTCDate()-(6-index));return date});const days=dates.map(date=>{const end=new Date(date);end.setUTCDate(end.getUTCDate()+1);const {totalSeconds,partial,utcWindows}=resolveDowntimeForDay(downtimes,date,end);return{date:dayKey(date),downtimeSeconds:totalSeconds,partial,utcWindows}});renderHistoryDays(row,check,days)}catch{}}
 
+      const hasOngoingMaintenance=(token:string)=>{const list=eventsByToken[token]??[];let ongoing=false;for(const event of list){if(event.type==='maintenance_started')ongoing=true;else if(event.type==='maintenance_ended')ongoing=false}return ongoing}
+      const resolveLiveStatus=(check:Check)=>{const down=Boolean(check.down);const maintenance=!down&&(!check.enabled||hasOngoingMaintenance(check.token));return{down,maintenance,up:!down&&!maintenance,label:down?'Disruption':maintenance?'Maintenance':'Operational'}}
+
       const checkSignature=(check:Check)=>JSON.stringify({
         alias:check.alias?.trim()||`Check ${check.token}`,
         enabled:check.enabled,
@@ -492,7 +495,7 @@ const dateFmt = (s: string) => new Intl.DateTimeFormat(undefined, { month: 'shor
         history:Array.isArray(check.history)?check.history:null,
       })
 
-      const updateRow=async(check:Check)=>{if(!services)return;let row=document.querySelector<HTMLElement>(`[data-token="${check.token}"]`);if(!row)row=createRow(check);services.append(row);row.style.setProperty('--today-led-delay',`${ledPhaseMs(check.token)}ms`);row.classList.toggle('is-down',check.down);row.classList.toggle('is-maintenance',!check.enabled);row.classList.toggle('is-up',!check.down&&check.enabled);row.querySelector<HTMLElement>('.service-identity h2')!.textContent=check.alias?.trim()||`Check ${check.token}`;row.querySelector<HTMLElement>('.status-label')!.textContent=check.down?'Disruption':!check.enabled?'Maintenance':'Operational';const time=row.querySelector<HTMLTimeElement>('.service-identity time')!;time.dateTime=check.last_check_at;time.textContent=rel(check.last_check_at);if(Number.isFinite(Number(check.periodUptime))){row.querySelector<HTMLElement>('.uptime')!.lastChild!.textContent=formatUptime(Number(check.periodUptime))}else{try{const from=new Date(Date.now()-7*24*60*60*1000).toISOString();const to=new Date().toISOString();const response=await fetch(`/api/checks/${encodeURIComponent(check.token)}/metrics?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`);const metrics=await response.json() as {uptime:number};row.querySelector<HTMLElement>('.uptime')!.lastChild!.textContent=formatUptime(Number(metrics.uptime))}catch{row.querySelector<HTMLElement>('.uptime')!.lastChild!.textContent='—'}}attachEventBadgePopover(row);await updateHistory(row,check);row.dataset.signature=checkSignature(check)}
+      const updateRow=async(check:Check)=>{if(!services)return;let row=document.querySelector<HTMLElement>(`[data-token="${check.token}"]`);if(!row)row=createRow(check);const live=resolveLiveStatus(check);services.append(row);row.style.setProperty('--today-led-delay',`${ledPhaseMs(check.token)}ms`);row.classList.toggle('is-down',live.down);row.classList.toggle('is-maintenance',live.maintenance);row.classList.toggle('is-up',live.up);row.querySelector<HTMLElement>('.service-identity h2')!.textContent=check.alias?.trim()||`Check ${check.token}`;row.querySelector<HTMLElement>('.status-label')!.textContent=live.label;const time=row.querySelector<HTMLTimeElement>('.service-identity time')!;time.dateTime=check.last_check_at;time.textContent=rel(check.last_check_at);if(Number.isFinite(Number(check.periodUptime))){row.querySelector<HTMLElement>('.uptime')!.lastChild!.textContent=formatUptime(Number(check.periodUptime))}else{try{const from=new Date(Date.now()-7*24*60*60*1000).toISOString();const to=new Date().toISOString();const response=await fetch(`/api/checks/${encodeURIComponent(check.token)}/metrics?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`);const metrics=await response.json() as {uptime:number};row.querySelector<HTMLElement>('.uptime')!.lastChild!.textContent=formatUptime(Number(metrics.uptime))}catch{row.querySelector<HTMLElement>('.uptime')!.lastChild!.textContent='—'}}attachEventBadgePopover(row);await updateHistory(row,check);row.dataset.signature=checkSignature(check)}
 
       const refreshRelativeTimes=()=>{
         document.querySelectorAll<HTMLTimeElement>('.service-identity time').forEach(time=>{
@@ -562,10 +565,11 @@ const dateFmt = (s: string) => new Intl.DateTimeFormat(undefined, { month: 'shor
           services.classList.remove('is-initializing','is-refreshing')
           services.removeAttribute('aria-busy')
 
-          const down=checks.some(check=>check.down)
-          const disruptionCount=checks.filter(check=>check.down).length
-          const maintenanceCount=checks.filter(check=>!check.down&&!check.enabled).length
-          const operationalCount=checks.length-disruptionCount-maintenanceCount
+          const liveStates=checks.map(check=>resolveLiveStatus(check))
+          const disruptionCount=liveStates.filter(state=>state.down).length
+          const maintenanceCount=liveStates.filter(state=>state.maintenance).length
+          const operationalCount=liveStates.filter(state=>state.up).length
+          const down=disruptionCount>0
           const countText=disruptionCount||maintenanceCount
             ? [`${operationalCount} Operational`,disruptionCount&&`${disruptionCount} Disruption`,maintenanceCount&&`${maintenanceCount} Maintenance`].filter(Boolean).join(' · ')
             : `${operationalCount} / ${checks.length} Operational`
