@@ -48,7 +48,6 @@ src/
     index.astro      # Main page (SSR initial render + client updates)
 public/
   global.css         # Global styles
-  events.json        # Auto-recorded state transition log
   favicon.svg
   favicon.png
   assets/
@@ -61,11 +60,10 @@ package.json
 The browser fetches service data from same-origin proxy endpoints powered by Pages Functions:
 
 - `/api/checks`
-- `/api/checks/{token}/downtimes`
-- `/api/checks/{token}/metrics`
 - `/api/events.json`
 
-Those Functions call `updown.io` server-side using `UPDOWN_API_KEY` secret, so API keys are not exposed to clients.
+Primary data path is KV-backed (`STATUS_EVENTS`) via Cron Worker snapshots.
+Per-token endpoints (`/api/checks/{token}/downtimes`, `/api/checks/{token}/metrics`) remain only as fallback paths.
 
 ## Automated Event Tracking (Maintenance/Incidents)
 
