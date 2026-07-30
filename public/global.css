@@ -406,7 +406,7 @@
 .status-page .service-result .history-event-popover-item .marker.is-outage{background:var(--status-outage);border-radius:50%}
 .status-page .service-result .history-event-popover-item .body{min-width:0}
 .status-page .service-result .history-event-popover-item .item-title{margin:0;font-size:15px;font-weight:500;line-height:1.2;color:var(--text)}
-.status-page .service-result .history-event-popover-item .item-title .item-count{margin-left:.48rem;color:color-mix(in srgb,var(--accent),var(--text) 30%);font-weight:600;font-variant-numeric:tabular-nums}
+.status-page .service-result .history-event-popover-item .item-title .item-count{display:inline-flex;align-items:center;margin-left:.52rem;padding:.13rem .54rem;border-radius:999px;border:1px solid color-mix(in srgb,var(--line),transparent 30%);background:color-mix(in srgb,var(--bg),transparent 14%);color:color-mix(in srgb,var(--accent),white 8%);font-size:.66rem;line-height:1;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
 .status-page .service-result .history-event-popover-item .item-meta{margin:2px 0 0;font-size:13px;font-weight:500;line-height:1.2;color:color-mix(in srgb,var(--text),transparent 26%);font-variant-numeric:tabular-nums}
 
 @media(max-width:38rem){.status-page .service-result .history-event-badge{font-size:.7rem}.status-page .service-result .history-event-popover{display:none}}
