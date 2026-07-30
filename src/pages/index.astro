@@ -452,7 +452,82 @@ const dateFmt = (s: string) => new Intl.DateTimeFormat('en', { month: 'short', d
       document.querySelectorAll<HTMLTimeElement>('.service-identity time').forEach(time=>time.textContent=rel(time.dateTime))
       document.querySelectorAll<HTMLElement>('.history-wrap').forEach(attachHistoryCard)
 
-      ;(async()=>{if(!page||!services)return;try{const eventsGeneratedAt=await loadEvents();setEventsFreshness(eventsGeneratedAt);const response=await fetch('/api/checks');const data=await response.json() as Check[];const checks=[...data].sort((a,b)=>(a.alias?.trim()||`Check ${a.token}`).localeCompare(b.alias?.trim()||`Check ${b.token}`,'en'));const tokens=new Set(checks.map(check=>check.token));services.querySelectorAll<HTMLElement>('.service-row').forEach(row=>{if(!tokens.has(row.dataset.token??''))row.remove()});const emptyNode=services.querySelector('.empty-state');if(emptyNode&&checks.length>0)emptyNode.remove();if(checks.length===0&&!emptyNode){const empty=document.createElement('div');empty.className='empty-state';empty.textContent='No public service status information is currently available';services.append(empty)}const hasNew=checks.some(check=>!document.querySelector(`[data-token="${check.token}"]`));if(hasNew){services.classList.add('is-refreshing');services.setAttribute('aria-busy','true')}await Promise.all(checks.map(check=>updateRow(check)));services.classList.remove('is-initializing','is-refreshing');services.removeAttribute('aria-busy');const down=checks.some(check=>check.down);const disruptionCount=checks.filter(check=>check.down).length;const maintenanceCount=checks.filter(check=>!check.down&&!check.enabled).length;const operationalCount=checks.length-disruptionCount-maintenanceCount;const countText=disruptionCount||maintenanceCount?[`${operationalCount} Operational`,disruptionCount&&`${disruptionCount} Disruption`,maintenanceCount&&`${maintenanceCount} Maintenance`].filter(Boolean).join(' · '):`${operationalCount} / ${checks.length} Operational`;document.querySelector<HTMLElement>('.status-count')!.textContent=countText;const maintenance=maintenanceCount>0;const overview=document.querySelector<HTMLElement>('.status-overview')!;overview.classList.remove('is-checking','is-operational','has-incident','is-maintenance','is-error');overview.classList.add(down?'has-incident':maintenance?'is-maintenance':'is-operational');document.querySelector<HTMLElement>('.overview-primary')!.textContent=down?'Service disruption detected':maintenance?'Scheduled maintenance':'All systems operational';document.querySelector<HTMLElement>('.overview-secondary')!.textContent=down?'Some services are currently experiencing disruptions':maintenance?'Some services are currently under maintenance':'All services are operating normally'}catch(error){console.error(error);services?.classList.remove('is-initializing','is-refreshing');services?.removeAttribute('aria-busy');setEventsFreshness(null);const overview=document.querySelector<HTMLElement>('.status-overview');overview?.classList.remove('is-checking');overview?.classList.add('is-error');document.querySelector<HTMLElement>('.overview-primary')!.textContent='Status unavailable';document.querySelector<HTMLElement>('.overview-secondary')!.textContent='Failed to retrieve service status';document.querySelector<HTMLElement>('.status-count')!.textContent='Unable to update'}})()
+      const POLL_INTERVAL_MS=15000
+      let refreshInFlight=false
+
+      const refreshStatus=async()=>{
+        if(!page||!services||refreshInFlight)return
+        refreshInFlight=true
+        try{
+          const eventsGeneratedAt=await loadEvents()
+          setEventsFreshness(eventsGeneratedAt)
+
+          const response=await fetch('/api/checks',{cache:'no-store'})
+          const data=await response.json() as Check[]
+          const checks=[...data].sort((a,b)=>(a.alias?.trim()||`Check ${a.token}`).localeCompare(b.alias?.trim()||`Check ${b.token}`,'en'))
+          const tokens=new Set(checks.map(check=>check.token))
+
+          services.querySelectorAll<HTMLElement>('.service-row').forEach(row=>{
+            if(!tokens.has(row.dataset.token??''))row.remove()
+          })
+
+          const emptyNode=services.querySelector('.empty-state')
+          if(emptyNode&&checks.length>0)emptyNode.remove()
+          if(checks.length===0&&!emptyNode){
+            const empty=document.createElement('div')
+            empty.className='empty-state'
+            empty.textContent='No public service status information is currently available'
+            services.append(empty)
+          }
+
+          const hasNew=checks.some(check=>!document.querySelector(`[data-token="${check.token}"]`))
+          if(hasNew){
+            services.classList.add('is-refreshing')
+            services.setAttribute('aria-busy','true')
+          }
+
+          await Promise.all(checks.map(check=>updateRow(check)))
+
+          services.classList.remove('is-initializing','is-refreshing')
+          services.removeAttribute('aria-busy')
+
+          const down=checks.some(check=>check.down)
+          const disruptionCount=checks.filter(check=>check.down).length
+          const maintenanceCount=checks.filter(check=>!check.down&&!check.enabled).length
+          const operationalCount=checks.length-disruptionCount-maintenanceCount
+          const countText=disruptionCount||maintenanceCount
+            ? [`${operationalCount} Operational`,disruptionCount&&`${disruptionCount} Disruption`,maintenanceCount&&`${maintenanceCount} Maintenance`].filter(Boolean).join(' · ')
+            : `${operationalCount} / ${checks.length} Operational`
+
+          document.querySelector<HTMLElement>('.status-count')!.textContent=countText
+
+          const maintenance=maintenanceCount>0
+          const overview=document.querySelector<HTMLElement>('.status-overview')!
+          overview.classList.remove('is-checking','is-operational','has-incident','is-maintenance','is-error')
+          overview.classList.add(down?'has-incident':maintenance?'is-maintenance':'is-operational')
+          document.querySelector<HTMLElement>('.overview-primary')!.textContent=down?'Service disruption detected':maintenance?'Scheduled maintenance':'All systems operational'
+          document.querySelector<HTMLElement>('.overview-secondary')!.textContent=down?'Some services are currently experiencing disruptions':maintenance?'Some services are currently under maintenance':'All services are operating normally'
+        }catch(error){
+          console.error(error)
+          services.classList.remove('is-initializing','is-refreshing')
+          services.removeAttribute('aria-busy')
+          setEventsFreshness(null)
+          const overview=document.querySelector<HTMLElement>('.status-overview')
+          overview?.classList.remove('is-checking')
+          overview?.classList.add('is-error')
+          document.querySelector<HTMLElement>('.overview-primary')!.textContent='Status unavailable'
+          document.querySelector<HTMLElement>('.overview-secondary')!.textContent='Failed to retrieve service status'
+          document.querySelector<HTMLElement>('.status-count')!.textContent='Unable to update'
+        }finally{
+          refreshInFlight=false
+        }
+      }
+
+      void refreshStatus()
+      window.setInterval(()=>{void refreshStatus()},POLL_INTERVAL_MS)
+      document.addEventListener('visibilitychange',()=>{
+        if(document.visibilityState==='visible')void refreshStatus()
+      })
     </script>
   </body>
 </html>
