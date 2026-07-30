@@ -391,6 +391,7 @@
 .status-page .service-result .history-event-badge{position:relative;z-index:1;display:inline-flex;align-items:center;gap:.28rem;padding:.24rem .36rem;margin:-.24rem -.36rem;border:0;background:transparent;appearance:none;color:color-mix(in srgb,var(--accent),var(--text) 30%);font-family:'Exo 2',system-ui,sans-serif;font-size:.74rem;font-weight:600;line-height:1;font-variant-numeric:tabular-nums;white-space:nowrap;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .status-page .service-result .history-event-badge .history-event-badge-dot{display:block;flex:0 0 auto;width:.44rem;height:.44rem;border-radius:50%;background:color-mix(in srgb,var(--accent),white 10%);box-shadow:0 0 0 1px color-mix(in srgb,var(--line),transparent 30%),0 0 8px color-mix(in srgb,var(--accent),transparent 76%)}
 .status-page .service-result .history-event-badge .history-event-badge-count{display:inline-block;line-height:1}
+.status-page .service-result .history-event-badge.is-empty .history-event-badge-dot,.status-page .service-result .history-event-badge.is-empty .history-event-badge-count{visibility:hidden}
 .status-page .service-result .history-event-badge::after{content:'';position:absolute;left:-12px;right:-12px;top:-12px;bottom:-12px}
 .status-page .service-result .history-event-badge[hidden]{display:none!important}
 
