@@ -530,7 +530,7 @@ const dateFmt = (s: string) => new Intl.DateTimeFormat(undefined, { month: 'shor
           const eventsGeneratedAt=eventsState?.generatedAt??null
           const eventsChanged=typeof eventsGeneratedAt==='string'&&eventsGeneratedAt!==eventsVersionKey
           if(typeof eventsGeneratedAt==='string')eventsVersionKey=eventsGeneratedAt
-          const syncedAt=eventsState?.checkedAt??new Date().toISOString()
+          const syncedAt=eventsState?.generatedAt??null
           setEventsFreshness(syncedAt)
 
           const response=await fetch('/api/checks',{cache:'no-store'})

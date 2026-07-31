@@ -86,7 +86,6 @@ export const refreshEventsDoc = async (env: StatusEventsEnv): Promise<EventsDoc>
   const now = new Date().toISOString()
   const checks = await updownJson<Check[]>(env, '/api/checks')
   const doc = await loadEventsDoc(env)
-  const beforeCore = JSON.stringify({ events: doc.events, latest: doc.latest })
 
   for (const check of checks) {
     const currentState = resolveState(check)
@@ -135,11 +134,6 @@ export const refreshEventsDoc = async (env: StatusEventsEnv): Promise<EventsDoc>
     const at = new Date(event.at).getTime()
     return Number.isFinite(at) && at >= sevenDaysAgo
   })
-
-  const afterCore = JSON.stringify({ events: doc.events, latest: doc.latest })
-  if (afterCore === beforeCore) {
-    return doc
-  }
 
   doc.generated_at = now
   await env.STATUS_EVENTS.put(KV_KEY, JSON.stringify(doc))
