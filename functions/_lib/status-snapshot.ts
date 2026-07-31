@@ -43,6 +43,7 @@ export type StatusSnapshotDoc = {
 
 type SnapshotEnv = UpdownEnv & {
   STATUS_EVENTS: KVLike
+  SNAPSHOT_ENRICH_BATCH_SIZE?: string
 }
 
 type SnapshotReadEnv = {
@@ -52,7 +53,13 @@ type SnapshotReadEnv = {
 }
 
 const SNAPSHOT_KEY = 'status.snapshot.v1.json'
-const SNAPSHOT_ENRICH_BATCH_SIZE = 10
+
+const resolveEnrichBatchSize = (env: SnapshotEnv, total: number): number => {
+  const raw = Number.parseInt(env.SNAPSHOT_ENRICH_BATCH_SIZE ?? '', 10)
+  if (Number.isFinite(raw) && raw > 0) return Math.min(raw, total)
+  // Paid plan default: enrich all checks each refresh
+  return total
+}
 
 const defaultDoc = (): StatusSnapshotDoc => ({ generated_at: null, checks: [] })
 
@@ -164,7 +171,7 @@ export const refreshStatusSnapshot = async (env: SnapshotEnv): Promise<StatusSna
     nextByToken.set(check.token, mergeRawIntoSnapshot(previousByToken.get(check.token), check))
   }
 
-  const batch = pickEnrichBatch(liveChecks, SNAPSHOT_ENRICH_BATCH_SIZE)
+  const batch = pickEnrichBatch(liveChecks, resolveEnrichBatchSize(env, liveChecks.length))
   for (const check of batch) {
     const enriched = await enrichCheck(env, check)
     if (enriched) nextByToken.set(check.token, enriched)

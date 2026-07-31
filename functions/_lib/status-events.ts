@@ -42,7 +42,7 @@ export type StatusEventsEnv = UpdownEnv & {
 }
 
 const KV_KEY = 'events.json'
-export const STATUS_EVENTS_STALE_MS = 4 * 60 * 1000
+export const STATUS_EVENTS_STALE_MS = 60 * 1000
 
 const resolveState = (check: Check): ServiceState => {
   if (check.down) return 'disruption'
