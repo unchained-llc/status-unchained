@@ -357,6 +357,11 @@ const isCurrentPage = (href: string) => {
 
     .link[aria-current] {
         color: var(--gray-0);
+        filter: none;
+    }
+
+    :global(.theme-light) .link[aria-current],
+    :global(html:not(.theme-dark)) .link[aria-current] {
         filter: brightness(1.35);
     }
 
@@ -464,6 +469,11 @@ const isCurrentPage = (href: string) => {
         .link[aria-current="page"] {
             color: var(--accent-text-over);
             background-color: var(--accent-regular);
+            filter: none;
+        }
+
+        :global(.theme-light) .link[aria-current="page"],
+        :global(html:not(.theme-dark)) .link[aria-current="page"] {
             filter: brightness(1.35);
         }
 
