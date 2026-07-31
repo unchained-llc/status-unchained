@@ -312,7 +312,7 @@ const dateFmt = (s: string) => new Intl.DateTimeFormat(undefined, { month: 'shor
 
     <script>
       type DayHistory={date:string;hadDowntime:boolean;downtimeSeconds:number;partial:boolean;utcWindows:string[]}
-      type Check={token:string;alias?:string;enabled:boolean;published?:boolean;down:boolean;uptime:number;last_check_at:string;periodUptime?:number;history?:DayHistory[]}
+      type Check={token:string;url?:string;type?:string;alias?:string;enabled:boolean;published?:boolean;down:boolean;uptime:number;last_check_at:string;periodUptime?:number;history?:DayHistory[];category?:string;displayName?:string}
       type Downtime={started_at:string;ended_at:string|null;duration?:number;partial?:boolean}
       type StatusEventType='maintenance_started'|'maintenance_ended'|'incident_started'|'incident_resolved'|'state_changed'
       type StatusEvent={token:string;alias:string;from:string;to:string;type:StatusEventType;at:string}
@@ -339,6 +339,14 @@ const dateFmt = (s: string) => new Intl.DateTimeFormat(undefined, { month: 'shor
       const localTzName=(value:Date|string)=>{const d=value instanceof Date?value:new Date(value);const part=new Intl.DateTimeFormat(undefined,{timeZoneName:'short'}).formatToParts(d).find((p)=>p.type==='timeZoneName');return part?.value??''}
       const statusFromDowntime=(seconds:number):'degraded'|'outage'=>seconds>=900?'outage':'degraded'
       const ledPhaseMs=(token:string)=>{let hash=0;for(const ch of token)hash=(hash*33+ch.charCodeAt(0))>>>0;return-(hash%1200)}
+      const CATEGORY_ORDER=['foundation','network','communication','identity','platform','operations','uncategorized'] as const
+      const aliasCategoryPattern=/\*([a-z0-9_-]+)\s*$/i
+
+      const normalizeCategory=(raw:string)=>{const normalized=raw.trim().toLowerCase().replace(/[^a-z0-9_-]+/g,'');if(!normalized)return'uncategorized';if(['core','foundation','fabric','facility'].includes(normalized))return'foundation';if(['net','network'].includes(normalized))return'network';if(['mail','voice','comms','communication'].includes(normalized))return'communication';if(['id','identity','auth','trust','directory','certificate'].includes(normalized))return'identity';if(['dev','platform','pipeline','repo','repository','web'].includes(normalized))return'platform';if(['ops','operation','operations','monitoring','security','vuln','backup','dr','disasterrecovery'].includes(normalized))return'operations';return normalized}
+      const categoryLabel=(category:string)=>{if(category==='foundation')return'Foundation';if(category==='network')return'Networking';if(category==='communication')return'Communications';if(category==='operations')return'Operations';return category.replace(/[_-]+/g,' ').replace(/\b[a-z]/g,(ch)=>ch.toUpperCase())}
+      const inferCategoryWithoutTag=(check:Check,alias:string)=>{const text=alias.toLowerCase();if(/\b(core network|network core|5g|cellular|mesh|time synchronization|network continuity|network availability|private mesh|router|opnsense|ntp)\b/.test(text))return'network';if(/\b(core|storage|fabric|facility)\b/.test(text))return'foundation';if(/\b(mail|dns|mx|smtp|imap|pop|voice|telecommunications|pbx)\b/.test(text))return'communication';if(/\b(identity|auth|authentication|directory|certificate|ca|keycloak|activedirectory)\b/.test(text))return'identity';if(/\b(collaboration|development|pipeline|repository|gitlab|runner|web presence|corporate web)\b/.test(text))return'platform';if(/\b(monitoring|data protection|disaster recovery|vulnerability|nessus|bareos|operations)\b/.test(text))return'operations';if(check.type==='pulse')return'network';return'uncategorized'}
+      const parseCheckNaming=(check:Check)=>{const alias=(check.alias??'').trim();const fallback=`Check ${check.token}`;if(!alias)return{category:inferCategoryWithoutTag(check,''),displayName:fallback};const match=alias.match(aliasCategoryPattern);if(!match)return{category:inferCategoryWithoutTag(check,alias),displayName:alias};const category=normalizeCategory(match[1]);const displayName=alias.replace(aliasCategoryPattern,'').trim()||fallback;return{category,displayName}}
+      const sortChecksForDisplay=(checks:Check[])=>[...checks].sort((a,b)=>{const orderA=CATEGORY_ORDER.indexOf((a.category as (typeof CATEGORY_ORDER)[number])??'uncategorized');const orderB=CATEGORY_ORDER.indexOf((b.category as (typeof CATEGORY_ORDER)[number])??'uncategorized');const rankA=orderA===-1?CATEGORY_ORDER.length:orderA;const rankB=orderB===-1?CATEGORY_ORDER.length:orderB;if(rankA!==rankB)return rankA-rankB;const categoryA=a.category??'uncategorized';const categoryB=b.category??'uncategorized';if(categoryA!==categoryB)return categoryA.localeCompare(categoryB,'en');const nameA=(a.displayName??a.alias?.trim()??`Check ${a.token}`);const nameB=(b.displayName??b.alias?.trim()??`Check ${b.token}`);const coreA=/^core\b/i.test(nameA)?0:1;const coreB=/^core\b/i.test(nameB)?0:1;if(coreA!==coreB)return coreA-coreB;return nameA.localeCompare(nameB,'en')})
 
       const loadEvents=async()=>{try{const response=await fetch('/api/events.json',{cache:'no-store'});if(!response.ok)return null;Object.keys(eventsByToken).forEach(key=>delete eventsByToken[key]);const json=await response.json() as EventsResponse;(json.events??[]).forEach(event=>{if(!event||typeof event.token!=='string'||typeof event.at!=='string')return;if(!eventsByToken[event.token])eventsByToken[event.token]=[];eventsByToken[event.token].push(event)});Object.values(eventsByToken).forEach(list=>list.sort((a,b)=>new Date(a.at).getTime()-new Date(b.at).getTime()));return{generatedAt:typeof json.generated_at==='string'?json.generated_at:null,checkedAt:typeof json.checked_at==='string'?json.checked_at:new Date().toISOString()}}catch{return null}}
 
@@ -496,7 +504,9 @@ const dateFmt = (s: string) => new Intl.DateTimeFormat(undefined, { month: 'shor
         history:Array.isArray(check.history)?check.history:null,
       })
 
-      const updateRow=async(check:Check)=>{if(!services)return;let row=document.querySelector<HTMLElement>(`[data-token="${check.token}"]`);if(!row)row=createRow(check);const live=resolveLiveStatus(check);services.append(row);row.style.setProperty('--today-led-delay',`${ledPhaseMs(check.token)}ms`);row.classList.toggle('is-down',live.down);row.classList.toggle('is-maintenance',live.maintenance);row.classList.toggle('is-up',live.up);row.querySelector<HTMLElement>('.service-identity h2')!.textContent=check.alias?.trim()||`Check ${check.token}`;row.querySelector<HTMLElement>('.status-label')!.textContent=live.label;const time=row.querySelector<HTMLTimeElement>('.service-identity time')!;time.dateTime=check.last_check_at;time.textContent=rel(check.last_check_at);if(Number.isFinite(Number(check.periodUptime))){row.querySelector<HTMLElement>('.uptime')!.lastChild!.textContent=formatUptime(Number(check.periodUptime))}else{try{const from=new Date(Date.now()-7*24*60*60*1000).toISOString();const to=new Date().toISOString();const response=await fetch(`/api/checks/${encodeURIComponent(check.token)}/metrics?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`);const metrics=await response.json() as {uptime:number};row.querySelector<HTMLElement>('.uptime')!.lastChild!.textContent=formatUptime(Number(metrics.uptime))}catch{row.querySelector<HTMLElement>('.uptime')!.lastChild!.textContent='—'}}attachEventBadgePopover(row);await updateHistory(row,check);row.dataset.signature=checkSignature(check)}
+      const updateRow=async(check:Check)=>{if(!services)return;let row=document.querySelector<HTMLElement>(`[data-token="${check.token}"]`);if(!row)row=createRow(check);const live=resolveLiveStatus(check);row.style.setProperty('--today-led-delay',`${ledPhaseMs(check.token)}ms`);row.dataset.category=check.category??'uncategorized';row.classList.toggle('is-down',live.down);row.classList.toggle('is-maintenance',live.maintenance);row.classList.toggle('is-up',live.up);row.querySelector<HTMLElement>('.service-identity h2')!.textContent=(check.displayName??check.alias?.trim())||`Check ${check.token}`;row.querySelector<HTMLElement>('.status-label')!.textContent=live.label;const time=row.querySelector<HTMLTimeElement>('.service-identity time')!;time.dateTime=check.last_check_at;time.textContent=rel(check.last_check_at);if(Number.isFinite(Number(check.periodUptime))){row.querySelector<HTMLElement>('.uptime')!.lastChild!.textContent=formatUptime(Number(check.periodUptime))}else{try{const from=new Date(Date.now()-7*24*60*60*1000).toISOString();const to=new Date().toISOString();const response=await fetch(`/api/checks/${encodeURIComponent(check.token)}/metrics?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`);const metrics=await response.json() as {uptime:number};row.querySelector<HTMLElement>('.uptime')!.lastChild!.textContent=formatUptime(Number(metrics.uptime))}catch{row.querySelector<HTMLElement>('.uptime')!.lastChild!.textContent='—'}}attachEventBadgePopover(row);await updateHistory(row,check);if(!row.isConnected)services.append(row);row.dataset.signature=checkSignature(check)}
+
+      const renderCategorySections=(checks:Check[])=>{if(!services)return;const grouped=new Map<string,Check[]>();checks.forEach(check=>{const key=check.category??'uncategorized';const list=grouped.get(key)??[];list.push(check);grouped.set(key,list)});const categoryKeys=[...grouped.keys()].sort((a,b)=>{const rank=(value:string)=>{const idx=CATEGORY_ORDER.indexOf(value as (typeof CATEGORY_ORDER)[number]);return idx===-1?CATEGORY_ORDER.length:idx};const rankDiff=rank(a)-rank(b);return rankDiff!==0?rankDiff:a.localeCompare(b,'en')});const activeSet=new Set(categoryKeys);services.querySelectorAll<HTMLElement>('.services-category').forEach(section=>{const key=section.dataset.category??'';if(!activeSet.has(key))section.remove()});categoryKeys.forEach(category=>{const categoryChecks=grouped.get(category)??[];let section=services.querySelector<HTMLElement>(`.services-category[data-category="${category}"]`);if(!section){section=document.createElement('section');section.className='services-category';section.dataset.category=category;section.innerHTML='<h3 class="services-category-title"></h3><div class="services-category-list"></div>'}const title=section.querySelector<HTMLElement>('.services-category-title');if(title)title.textContent=categoryLabel(category);const list=section.querySelector<HTMLElement>('.services-category-list');if(list){const rows=categoryChecks.map(check=>document.querySelector<HTMLElement>(`[data-token="${check.token}"]`)).filter((row):row is HTMLElement=>Boolean(row));list.replaceChildren(...rows)}services.append(section)})}
 
       const refreshRelativeTimes=()=>{
         document.querySelectorAll<HTMLTimeElement>('.service-identity time').forEach(time=>{
@@ -525,7 +535,14 @@ const dateFmt = (s: string) => new Intl.DateTimeFormat(undefined, { month: 'shor
 
           const response=await fetch('/api/checks',{cache:'no-store'})
           const data=await response.json() as Check[]
-          const checks=[...data].filter(check=>check.published!==false).sort((a,b)=>(a.alias?.trim()||`Check ${a.token}`).localeCompare(b.alias?.trim()||`Check ${b.token}`,'en'))
+          const checks=sortChecksForDisplay(
+            [...data]
+              .filter(check=>check.published!==false)
+              .map(check=>{
+                const naming=parseCheckNaming(check)
+                return {...check,category:naming.category,displayName:naming.displayName}
+              })
+          )
 
           services.classList.add('is-refreshing')
           services.setAttribute('aria-busy','true')
@@ -538,6 +555,7 @@ const dateFmt = (s: string) => new Intl.DateTimeFormat(undefined, { month: 'shor
           if(checks.length===0){
             closeActiveCard()
             services.querySelectorAll<HTMLElement>('.empty-state').forEach(node=>node.remove())
+            services.querySelectorAll<HTMLElement>('.services-category').forEach(node=>node.remove())
             const empty=document.createElement('div')
             empty.className='empty-state'
             empty.textContent='No public service status information is currently available'
@@ -555,10 +573,7 @@ const dateFmt = (s: string) => new Intl.DateTimeFormat(undefined, { month: 'shor
               }
             }))
 
-            checks.forEach(check=>{
-              const row=document.querySelector<HTMLElement>(`[data-token="${check.token}"]`)
-              if(row)services.append(row)
-            })
+            renderCategorySections(checks)
 
             if(changed)closeActiveCard()
           }

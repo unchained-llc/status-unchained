@@ -52,6 +52,7 @@ type SnapshotReadEnv = {
 }
 
 const SNAPSHOT_KEY = 'status.snapshot.v1.json'
+const SNAPSHOT_ENRICH_BATCH_SIZE = 10
 
 const defaultDoc = (): StatusSnapshotDoc => ({ generated_at: null, checks: [] })
 
@@ -118,7 +119,20 @@ export const loadStatusSnapshot = async (env: SnapshotReadEnv): Promise<StatusSn
   }
 }
 
-const enrichCheck = async (env: SnapshotEnv, check: RawCheck): Promise<SnapshotCheck> => {
+const mergeRawIntoSnapshot = (previous: SnapshotCheck | undefined, check: RawCheck): SnapshotCheck => ({
+  ...check,
+  periodUptime: previous?.periodUptime,
+  history: previous?.history,
+})
+
+const pickEnrichBatch = (checks: RawCheck[], batchSize: number): RawCheck[] => {
+  if (checks.length === 0 || batchSize <= 0) return []
+  const start = Math.floor(Date.now() / 60000) % checks.length
+  const size = Math.min(batchSize, checks.length)
+  return Array.from({ length: size }, (_, index) => checks[(start + index) % checks.length])
+}
+
+const enrichCheck = async (env: SnapshotEnv, check: RawCheck): Promise<SnapshotCheck | null> => {
   try {
     const from = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
     const to = new Date().toISOString()
@@ -134,21 +148,37 @@ const enrichCheck = async (env: SnapshotEnv, check: RawCheck): Promise<SnapshotC
       history: buildHistory(downtimes),
     }
   } catch {
-    return check
+    return null
   }
 }
 
 export const refreshStatusSnapshot = async (env: SnapshotEnv): Promise<StatusSnapshotDoc> => {
-  const generatedAt = new Date().toISOString()
   const previous = await loadStatusSnapshot(env)
-  const checks = await updownJson<RawCheck[]>(env, '/api/checks')
-  const enrichedChecks = await Promise.all(checks.map((check) => enrichCheck(env, check)))
+  const previousByToken = new Map(previous.checks.map((check) => [check.token, check]))
 
-  if (JSON.stringify(previous.checks) === JSON.stringify(enrichedChecks)) {
+  const checks = await updownJson<RawCheck[]>(env, '/api/checks')
+  const liveChecks = [...checks].sort((a, b) => a.token.localeCompare(b.token))
+
+  const nextByToken = new Map<string, SnapshotCheck>()
+  for (const check of liveChecks) {
+    nextByToken.set(check.token, mergeRawIntoSnapshot(previousByToken.get(check.token), check))
+  }
+
+  const batch = pickEnrichBatch(liveChecks, SNAPSHOT_ENRICH_BATCH_SIZE)
+  for (const check of batch) {
+    const enriched = await enrichCheck(env, check)
+    if (enriched) nextByToken.set(check.token, enriched)
+  }
+
+  const nextChecks = liveChecks
+    .map((check) => nextByToken.get(check.token))
+    .filter((check): check is SnapshotCheck => Boolean(check))
+
+  if (JSON.stringify(previous.checks) === JSON.stringify(nextChecks)) {
     return previous
   }
 
-  const doc: StatusSnapshotDoc = { generated_at: generatedAt, checks: enrichedChecks }
+  const doc: StatusSnapshotDoc = { generated_at: new Date().toISOString(), checks: nextChecks }
   await env.STATUS_EVENTS.put(SNAPSHOT_KEY, JSON.stringify(doc))
   return doc
 }

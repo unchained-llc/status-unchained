@@ -74,6 +74,48 @@ Use:
 
 `dev:cf:dist` is for static-dist verification and does not reflect source edits until rebuild.
 
+## Remote KV -> Local KV Sync (for `dev:cf`)
+
+When local data differs from production, sync KV snapshots explicitly.
+
+### 1) Export from remote KV namespace
+
+```bash
+mkdir -p debug-data/kv-sync
+
+npx wrangler kv key get events.json \
+  --namespace-id 6a495433dc4b40ecac1a328329474222 \
+  --remote --text > debug-data/kv-sync/events.remote.json
+
+npx wrangler kv key get status.snapshot.v1.json \
+  --namespace-id 6a495433dc4b40ecac1a328329474222 \
+  --remote --text > debug-data/kv-sync/status.snapshot.v1.remote.json
+```
+
+### 2) Import into local KV used by `npm run dev:cf`
+
+```bash
+npx wrangler kv key put events.json \
+  --path debug-data/kv-sync/events.remote.json \
+  --namespace-id STATUS_EVENTS \
+  --local --persist-to .wrangler/state
+
+npx wrangler kv key put status.snapshot.v1.json \
+  --path debug-data/kv-sync/status.snapshot.v1.remote.json \
+  --namespace-id STATUS_EVENTS \
+  --local --persist-to .wrangler/state
+```
+
+### 3) Verify local API count
+
+```bash
+curl -s http://localhost:8788/api/checks | grep -o '"token":' | wc -l
+```
+
+Expected result should match production (`https://status.unchained.co.jp/api/checks`).
+
+> Note: for local import, prefer `--namespace-id STATUS_EVENTS` to target the same local binding used by Pages dev. Using only the remote namespace UUID for local writes may target a different local store.
+
 ## Runtime Architecture
 
 ### Data flow
