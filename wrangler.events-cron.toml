@@ -11,6 +11,9 @@ crons = ["*/1 * * * *"]
 id = "6a495433dc4b40ecac1a328329474222"
 binding = "STATUS_EVENTS"
 
+[vars]
+PUSH_VAPID_PUBLIC_KEY = "BByey9oo__8f-hJkAUr1u5GIts9mOT8MtjJ1JejcNqhiqCBfoPLOF1clHKtOor8v1ckTLYm_QVJCYWyr2qF8ynA"
+
 [observability]
 enabled = false
 head_sampling_rate = 1

@@ -239,6 +239,7 @@ const dateFmt = (s: string) => new Intl.DateTimeFormat(undefined, { month: 'shor
           <div class="overview-meta">
             <span class="status-count">Checking current status</span>
             <span class="events-freshness" hidden>Last update unavailable</span>
+            <button type="button" class="notify-toggle" style="border:1px solid var(--line);background:color-mix(in srgb,var(--bg),transparent 6%);color:var(--text);border-radius:999px;padding:.3rem .65rem;font:inherit;font-size:.68rem;line-height:1;cursor:pointer;">Enable alerts</button>
           </div>
         </section>
 
@@ -325,8 +326,10 @@ const dateFmt = (s: string) => new Intl.DateTimeFormat(undefined, { month: 'shor
       const page=document.querySelector<HTMLElement>('.status-page')
       const services=document.querySelector<HTMLElement>('.services')
       const eventsFreshness=document.querySelector<HTMLElement>('.events-freshness')
+      const notifyToggle=document.querySelector<HTMLButtonElement>('.notify-toggle')
       const eventsByToken:Record<string,StatusEvent[]>={}
       const EVENTS_DELAY_MS=3*60*1000
+      const NOTIFY_PREF_KEY='status-notify-enabled'
       const isMobileView=()=>{const touchOnly=window.matchMedia('(hover: none) and (pointer: coarse)').matches;const hasHoverCapablePointer=window.matchMedia('(any-hover: hover) and (any-pointer: fine)').matches;return touchOnly&&!hasHoverCapablePointer}
 
       const rel=(value:string|Date)=>{const date=value instanceof Date?value:new Date(value);const seconds=Math.round((date.getTime()-Date.now())/1000);const formatter=new Intl.RelativeTimeFormat('en',{numeric:'auto'});const units:Array<[Intl.RelativeTimeFormatUnit,number]>=[['year',31536000],['month',2592000],['day',86400],['hour',3600],['minute',60],['second',1]];const [unit,amount]=units.find(([,amount])=>Math.abs(seconds)>=amount)??units.at(-1)!;return formatter.format(Math.round(seconds/amount),unit)}
@@ -374,10 +377,45 @@ const dateFmt = (s: string) => new Intl.DateTimeFormat(undefined, { month: 'shor
       let relativeTimeTicker:number|null=null
       let activeBadge:HTMLElement|null=null
       let badgeLockOpen=false
+      let notifyEnabled=false
+      let pushPublicKey:string|null=null
+
+      const isiOSLike=()=>/iPad|iPhone|iPod/.test(navigator.userAgent)
+      const isStandalone=()=>window.matchMedia('(display-mode: standalone)').matches||((navigator as Navigator & { standalone?: boolean }).standalone===true)
+      const windowPushManager=()=>((window as Window & { pushManager?: PushManager }).pushManager ?? null)
+      const pushSupported=()=>typeof window!=='undefined'&&Boolean(windowPushManager())&&'Notification'in window
+      const loadNotifyPref=()=>{try{return localStorage.getItem(NOTIFY_PREF_KEY)==='1'}catch{return false}}
+      const persistNotifyPref=(enabled:boolean)=>{try{localStorage.setItem(NOTIFY_PREF_KEY,enabled?'1':'0')}catch{}}
+      const urlB64ToUint8Array=(base64:string)=>{const padding='='.repeat((4-(base64.length%4))%4);const normalized=(base64+padding).replace(/-/g,'+').replace(/_/g,'/');const binary=atob(normalized);return Uint8Array.from(binary,(ch)=>ch.charCodeAt(0))}
+      const fetchPushConfig=async()=>{if(pushPublicKey!==null)return pushPublicKey;try{const response=await fetch('/api/push/config',{cache:'no-store'});if(!response.ok)return null;const json=await response.json() as {enabled?:boolean;publicKey?:string};if(!json.enabled||typeof json.publicKey!=='string'||!json.publicKey){pushPublicKey='';return null}pushPublicKey=json.publicKey;return pushPublicKey}catch{return null}}
+      const getCurrentSubscription=async()=>{const manager=windowPushManager();if(!manager)return null;return manager.getSubscription()}
+      const updateNotifyToggle=()=>{if(!notifyToggle)return;if(!pushSupported()){notifyToggle.disabled=true;notifyToggle.textContent='Push unsupported';return}if(isiOSLike()&&!isStandalone()){notifyToggle.disabled=true;notifyToggle.textContent='Add to Home Screen';return}if(Notification.permission==='denied'){notifyToggle.disabled=true;notifyToggle.textContent='Alerts blocked';return}notifyToggle.disabled=false;notifyToggle.textContent=notifyEnabled?'Alerts enabled':'Enable alerts'}
+      const subscribeWebPush=async()=>{if(!pushSupported())return false;const manager=windowPushManager();if(!manager)return false;const publicKey=await fetchPushConfig();if(!publicKey)return false;const permission=Notification.permission==='granted'? 'granted' : await Notification.requestPermission();if(permission!=='granted')return false;let subscription=await manager.getSubscription();if(!subscription){subscription=await manager.subscribe({userVisibleOnly:true,applicationServerKey:urlB64ToUint8Array(publicKey)})}const response=await fetch('/api/push/subscribe',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({subscription:subscription.toJSON()})});return response.ok}
+      const unsubscribeWebPush=async()=>{const subscription=await getCurrentSubscription();if(!subscription)return true;await fetch('/api/push/unsubscribe',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({endpoint:subscription.endpoint})});await subscription.unsubscribe();return true}
 
       const renderEventsFreshness=()=>{if(!eventsFreshness)return;const overview=document.querySelector<HTMLElement>('.status-overview');if(!lastSyncedAt){eventsFreshness.hidden=false;eventsFreshness.classList.add('is-stale');eventsFreshness.classList.remove('is-fresh');eventsFreshness.textContent='Status unknown';overview?.classList.add('has-stale-data');return}const syncedMs=new Date(lastSyncedAt).getTime();const delayed=!Number.isFinite(syncedMs)||Date.now()-syncedMs>EVENTS_DELAY_MS;eventsFreshness.hidden=false;eventsFreshness.classList.toggle('is-stale',delayed);eventsFreshness.classList.toggle('is-fresh',!delayed);eventsFreshness.textContent=delayed?`Delayed · ${rel(lastSyncedAt)}`:`Synced · ${rel(lastSyncedAt)}`;overview?.classList.toggle('has-stale-data',delayed)}
 
       const setEventsFreshness=(syncedAt:string|null)=>{lastSyncedAt=syncedAt;renderEventsFreshness();if(eventsFreshnessTicker){window.clearInterval(eventsFreshnessTicker);eventsFreshnessTicker=null}if(lastSyncedAt){eventsFreshnessTicker=window.setInterval(renderEventsFreshness,1000)}}
+
+      notifyEnabled=loadNotifyPref()
+      void getCurrentSubscription().then((subscription)=>{
+        if(subscription) notifyEnabled=true
+        persistNotifyPref(notifyEnabled)
+        updateNotifyToggle()
+      }).catch(()=>updateNotifyToggle())
+      notifyToggle?.addEventListener('click',async()=>{
+        if(notifyEnabled){
+          await unsubscribeWebPush()
+          notifyEnabled=false
+          persistNotifyPref(false)
+          updateNotifyToggle()
+          return
+        }
+        const subscribed=await subscribeWebPush()
+        notifyEnabled=subscribed
+        persistNotifyPref(subscribed)
+        updateNotifyToggle()
+      })
 
       const closeActiveCard=()=>{if(!activeWrap)return;const card=activeWrap.querySelector<HTMLElement>('.history-card');if(card){const pending=hideTimers.get(card);if(pending)window.clearTimeout(pending);card.classList.remove('is-open');const timer=window.setTimeout(()=>{card.hidden=true},120);hideTimers.set(card,timer)}activeWrap.classList.remove('has-history-card','is-locked');delete activeWrap.dataset.activeMarker;activeWrap.querySelectorAll<HTMLButtonElement>('.history-day[aria-expanded="true"]').forEach(btn=>btn.setAttribute('aria-expanded','false'));activeWrap.querySelectorAll('.history-day.is-active').forEach(el=>el.classList.remove('is-active'));activeWrap=null;activeBtn=null;lockOpen=false;if(nowTicker){window.clearInterval(nowTicker);nowTicker=null}}
 

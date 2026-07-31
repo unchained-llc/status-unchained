@@ -42,6 +42,17 @@ UPDOWN_API_KEY=your_updown_api_key
 
 Used by Pages Functions and Worker to call updown.io.
 
+### Web Push configuration (Cloudflare)
+
+Set these in both Pages and Cron Worker runtime:
+
+- `PUSH_VAPID_PUBLIC_KEY` (plaintext var, URL-safe base64)
+- `PUSH_VAPID_PRIVATE_KEY` (secret, URL-safe base64)
+
+
+This implementation uses Declarative Web Push (Safari `web_push: 8030` payload).
+No Service Worker registration is required for push delivery.
+
 ## Setup
 
 ```bash
@@ -153,6 +164,12 @@ This avoids false `Delayed` states after write-skip optimization.
 - `GET /api/checks/{token}/downtimes`
 - `GET /api/checks/{token}/metrics?from=...&to=...`
   - per-token endpoints are kept as fallback/debug paths
+- `GET /api/push/config`
+  - returns Web Push availability and VAPID public key
+- `POST /api/push/subscribe`
+  - stores browser push subscription
+- `POST /api/push/unsubscribe`
+  - removes browser push subscription
 
 ## Cron Worker
 
@@ -164,8 +181,18 @@ Worker files:
 
 Deploy Worker:
 
+Set plaintext vars in `wrangler.events-cron.toml`:
+
+```toml
+[vars]
+PUSH_VAPID_PUBLIC_KEY = "<your_public_vapid_key>"
+```
+
+Set secrets and deploy:
+
 ```bash
 npx wrangler secret put UPDOWN_API_KEY -c wrangler.events-cron.toml
+npx wrangler secret put PUSH_VAPID_PRIVATE_KEY -c wrangler.events-cron.toml
 npx wrangler deploy -c wrangler.events-cron.toml
 ```
 
@@ -191,9 +218,15 @@ functions/
     checks/[token]/
       downtimes.ts              # Fallback per-check downtimes proxy
       metrics.ts                # Fallback per-check metrics proxy
+    push/
+      config.ts                 # Push config endpoint
+      subscribe.ts              # Store push subscription
+      unsubscribe.ts            # Remove push subscription
   _lib/
     status-events.ts            # events.json refresh logic
     status-snapshot.ts          # snapshot refresh logic
+    push-subscriptions.ts       # subscription KV helpers
+    web-push.ts                 # VAPID JWT + aes128gcm sender (Declarative payload)
 workers/
   status-events-cron.ts         # Scheduled refresh worker
 wrangler.events-cron.toml
@@ -217,9 +250,16 @@ After deployment or cache-sensitive changes:
 4. Verify freshness badge
    - `Synced · ... ago` updates continuously
    - no unexpected `Delayed` when API calls succeed
+5. Verify Declarative Web Push
+   - `Enable alerts` can subscribe successfully
+   - new status transition triggers a browser notification
+   - iOS/iPadOS: test from Home Screen app (not Safari tab)
 
 ## Notes
 
 - GitHub Actions based status tracking was removed.
 - Production data refresh is managed by Cloudflare Pages + Cron Worker.
 - Browsers may render timezone names differently (`JST` vs `GMT+9`) based on Intl implementation.
+- iOS/iPadOS Safari requires Home Screen launch for Web Push permission.
+- Push dispatch is de-duplicated by `push:last-event-id` in KV.
+- For one-time resend testing, delete `push:last-event-id` in remote KV.

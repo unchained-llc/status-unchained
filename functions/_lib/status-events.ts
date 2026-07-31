@@ -35,6 +35,8 @@ export type EventsDoc = {
 export type KVLike = {
   get(key: string): Promise<string | null>
   put(key: string, value: string): Promise<void>
+  delete?(key: string): Promise<void>
+  list?(options?: { prefix?: string; cursor?: string; limit?: number }): Promise<{ keys: Array<{ name: string }>; list_complete?: boolean; cursor?: string }>
 }
 
 export type StatusEventsEnv = UpdownEnv & {
