@@ -266,7 +266,8 @@
 .status-page .history-card::before{display:none}
 
 .status-page .history-card-head{display:flex;align-items:center;justify-content:space-between;gap:.65rem}
-.status-page .history-card-date{margin:0;font-size:12px;font-weight:400;line-height:1.2;color:color-mix(in srgb,var(--text),transparent 40%);font-variant-numeric:tabular-nums}
+.status-page .history-card-date,
+.status-page .service-result .history-event-popover-date{margin:0;font-size:12px;font-weight:400;line-height:1.2;letter-spacing:0;color:color-mix(in srgb,var(--text),transparent 40%);font-variant-numeric:tabular-nums}
 .status-page .history-card-count{display:inline-flex;align-items:center;padding:.18rem .5rem;border-radius:999px;border:1px solid color-mix(in srgb,var(--line),transparent 30%);background:color-mix(in srgb,var(--bg),transparent 14%);font-size:10px;line-height:1;color:color-mix(in srgb,var(--accent),white 8%);font-weight:500;letter-spacing:.02em;font-variant-numeric:tabular-nums}
 .status-page .history-card-list{display:grid;gap:6px;margin:6px 0 0;padding:0}
 .status-page .history-card-entry{display:grid;gap:0;margin:0;padding:0;border:0;background:none}
@@ -340,7 +341,8 @@
 
 @media(max-width:38rem){
   .status-page .history-card{position:absolute!important;left:50%!important;right:auto!important;transform:translateX(-50%);top:calc(100% + .72rem)!important;bottom:auto!important;width:calc(100vw - 2rem)!important;max-width:calc(100vw - 2rem)!important;min-width:unset!important;box-sizing:border-box;padding:12px}
-  .status-page .history-card-date{font-size:14px}
+  .status-page .history-card-date,
+  .status-page .service-result .history-event-popover-date{font-size:14px;font-weight:400}
   .status-page .history-card-title{font-size:16px}
   .status-page .history-card-meta-line{font-size:13px}
   .status-page .history-card-end{font-size:13px}
@@ -403,7 +405,7 @@
 .status-page .service-result .history-event-popover-label{margin:0;font-size:.74rem;font-weight:600;line-height:1.2;color:color-mix(in srgb,var(--accent),var(--text) 24%)}
 .status-page .service-result .history-event-popover-day{padding-top:.3rem;border-top:0}
 .status-page .service-result .history-event-popover-day:first-of-type{padding-top:0}
-.status-page .service-result .history-event-popover-date{margin:0 0 .2rem;font-size:12px;font-weight:400;line-height:1.2;color:var(--muted);font-variant-numeric:tabular-nums}
+.status-page .service-result .history-event-popover-date{margin:0 0 .2rem}
 .status-page .service-result .history-event-popover-list{margin:0;padding:0;list-style:none;display:grid;gap:6px}
 .status-page .service-result .history-event-popover-item{display:grid;grid-template-columns:.82rem minmax(0,1fr);align-items:center;gap:.56rem;min-width:0}
 .status-page .service-result .history-event-popover-item .marker{position:relative;display:block;width:.56rem;height:.56rem;margin-top:0}
