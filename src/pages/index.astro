@@ -220,14 +220,24 @@ const dateFmt = (s: string) => new Intl.DateTimeFormat(undefined, { month: 'shor
 
       <main class="status-page">
         <header class="page-heading">
-          <h1 class="bilingual-title">
-            <span class="en">System Status</span>
-            <span class="ja">システム稼働状況</span>
-          </h1>
-          <p class="bilingual-lead">
-            <span class="en">Real-time operational status for services and infrastructure.</span>
-            <span class="ja">サービスおよびインフラストラクチャの稼働状況をリアルタイムで公開しています</span>
-          </p>
+          <div class="page-heading-main">
+            <h1 class="bilingual-title">
+              <span class="en">System Status</span>
+              <span class="ja">システム稼働状況</span>
+            </h1>
+            <p class="bilingual-lead">
+              <span class="en">Real-time operational status for services and infrastructure.</span>
+              <span class="ja">サービスおよびインフラストラクチャの稼働状況をリアルタイムで公開しています</span>
+            </p>
+            <button type="button" class="notify-toggle" aria-label="Enable Push Notifications" title="Enable Push Notifications">
+              <svg class="notify-toggle-icon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path class="icon-plus-v" d="M12 6.5v11" />
+                <path class="icon-plus-h" d="M6.5 12h11" />
+                <path class="icon-check" d="M6.9 12.4 10.2 15.7 17.1 8.8" />
+              </svg>
+              <span class="notify-toggle-label">Enable Push Notifications</span>
+            </button>
+          </div>
         </header>
 
         <section class="status-overview is-checking" aria-live="polite">
@@ -239,7 +249,6 @@ const dateFmt = (s: string) => new Intl.DateTimeFormat(undefined, { month: 'shor
           <div class="overview-meta">
             <span class="status-count">Checking current status</span>
             <span class="events-freshness" hidden>Last update unavailable</span>
-            <button type="button" class="notify-toggle" style="border:1px solid var(--line);background:color-mix(in srgb,var(--bg),transparent 6%);color:var(--text);border-radius:999px;padding:.3rem .65rem;font:inherit;font-size:.68rem;line-height:1;cursor:pointer;">Enable alerts</button>
           </div>
         </section>
 
@@ -327,6 +336,7 @@ const dateFmt = (s: string) => new Intl.DateTimeFormat(undefined, { month: 'shor
       const services=document.querySelector<HTMLElement>('.services')
       const eventsFreshness=document.querySelector<HTMLElement>('.events-freshness')
       const notifyToggle=document.querySelector<HTMLButtonElement>('.notify-toggle')
+      const notifyToggleLabel=document.querySelector<HTMLElement>('.notify-toggle-label')
       const eventsByToken:Record<string,StatusEvent[]>={}
       const EVENTS_DELAY_MS=3*60*1000
       const NOTIFY_PREF_KEY='status-notify-enabled'
@@ -351,7 +361,7 @@ const dateFmt = (s: string) => new Intl.DateTimeFormat(undefined, { month: 'shor
       const parseCheckNaming=(check:Check)=>{const alias=(check.alias??'').trim();const fallback=`Check ${check.token}`;if(!alias)return{category:inferCategoryWithoutTag(check,''),displayName:fallback};const match=alias.match(aliasCategoryPattern);if(!match)return{category:inferCategoryWithoutTag(check,alias),displayName:alias};const category=normalizeCategory(match[1]);const displayName=alias.replace(aliasCategoryPattern,'').trim()||fallback;return{category,displayName}}
       const sortChecksForDisplay=(checks:Check[])=>[...checks].sort((a,b)=>{const orderA=CATEGORY_ORDER.indexOf((a.category as (typeof CATEGORY_ORDER)[number])??'uncategorized');const orderB=CATEGORY_ORDER.indexOf((b.category as (typeof CATEGORY_ORDER)[number])??'uncategorized');const rankA=orderA===-1?CATEGORY_ORDER.length:orderA;const rankB=orderB===-1?CATEGORY_ORDER.length:orderB;if(rankA!==rankB)return rankA-rankB;const categoryA=a.category??'uncategorized';const categoryB=b.category??'uncategorized';if(categoryA!==categoryB)return categoryA.localeCompare(categoryB,'en');const nameA=(a.displayName??a.alias?.trim()??`Check ${a.token}`);const nameB=(b.displayName??b.alias?.trim()??`Check ${b.token}`);const coreA=/^core\b/i.test(nameA)?0:1;const coreB=/^core\b/i.test(nameB)?0:1;if(coreA!==coreB)return coreA-coreB;return nameA.localeCompare(nameB,'en')})
 
-      const loadEvents=async()=>{try{const response=await fetch('/api/events.json',{cache:'no-store'});if(!response.ok)return null;Object.keys(eventsByToken).forEach(key=>delete eventsByToken[key]);const json=await response.json() as EventsResponse;(json.events??[]).forEach(event=>{if(!event||typeof event.token!=='string'||typeof event.at!=='string')return;if(!eventsByToken[event.token])eventsByToken[event.token]=[];eventsByToken[event.token].push(event)});Object.values(eventsByToken).forEach(list=>list.sort((a,b)=>new Date(a.at).getTime()-new Date(b.at).getTime()));return{generatedAt:typeof json.generated_at==='string'?json.generated_at:null,checkedAt:typeof json.checked_at==='string'?json.checked_at:new Date().toISOString()}}catch{return null}}
+      const loadEvents=async()=>{try{const response=await fetch('/api/events.json',{cache:'no-store'});if(!response.ok)return null;Object.keys(eventsByToken).forEach(key=>delete eventsByToken[key]);const json=await response.json() as EventsResponse;(json.events??[]).forEach(event=>{if(!event||typeof event.token!=='string'||typeof event.at!=='string')return;if(!eventsByToken[event.token])eventsByToken[event.token]=[];eventsByToken[event.token].push(event)});Object.values(eventsByToken).forEach(list=>list.sort((a,b)=>new Date(a.at).getTime()-new Date(b.at).getTime()));return{generatedAt:typeof json.generated_at==='string'?json.generated_at:null}}catch{return null}}
 
       const resolveDowntimeForDay=(downtimes:Downtime[],dayStart:Date,dayEnd:Date)=>{let totalSeconds=0;let partial=false;const utcWindows:string[]=[];for(const d of downtimes){const start=new Date(d.started_at).getTime();const end=new Date(d.ended_at??Date.now()).getTime();const overlapStart=Math.max(start,dayStart.getTime());const overlapEnd=Math.min(end,dayEnd.getTime());if(overlapEnd>overlapStart){totalSeconds+=Math.round((overlapEnd-overlapStart)/1000);partial=partial||Boolean(d.partial);utcWindows.push(`${formatUtcDateTime(overlapStart)} → ${formatUtcDateTime(overlapEnd)}`)}}return{totalSeconds,partial,utcWindows}}
 
@@ -389,7 +399,7 @@ const dateFmt = (s: string) => new Intl.DateTimeFormat(undefined, { month: 'shor
       const urlB64ToUint8Array=(base64:string)=>{const padding='='.repeat((4-(base64.length%4))%4);const normalized=(base64+padding).replace(/-/g,'+').replace(/_/g,'/');const binary=atob(normalized);return Uint8Array.from(binary,(ch)=>ch.charCodeAt(0))}
       const fetchPushConfig=async()=>{if(pushPublicKey!==null)return pushPublicKey;try{const response=await fetch('/api/push/config',{cache:'no-store'});if(!response.ok)return null;const json=await response.json() as {enabled?:boolean;publicKey?:string};if(!json.enabled||typeof json.publicKey!=='string'||!json.publicKey){pushPublicKey='';return null}pushPublicKey=json.publicKey;return pushPublicKey}catch{return null}}
       const getCurrentSubscription=async()=>{const manager=windowPushManager();if(!manager)return null;return manager.getSubscription()}
-      const updateNotifyToggle=()=>{if(!notifyToggle)return;if(!pushSupported()){notifyToggle.disabled=true;notifyToggle.textContent='Push unsupported';return}if(isiOSLike()&&!isStandalone()){notifyToggle.disabled=true;notifyToggle.textContent='Add to Home Screen';return}if(Notification.permission==='denied'){notifyToggle.disabled=true;notifyToggle.textContent='Alerts blocked';return}notifyToggle.disabled=false;notifyToggle.textContent=notifyEnabled?'Alerts enabled':'Enable alerts'}
+      const updateNotifyToggle=()=>{if(!notifyToggle)return;const apply=(label:string,enabled:boolean,disabled:boolean)=>{notifyToggle.disabled=disabled;notifyToggle.classList.toggle('is-enabled',enabled);notifyToggle.setAttribute('aria-label',label);notifyToggle.title=label;if(notifyToggleLabel)notifyToggleLabel.textContent=label};if(!pushSupported()){apply('Push unsupported',false,true);return}if(isiOSLike()&&!isStandalone()){apply('Add to Home Screen',false,true);return}if(Notification.permission==='denied'){apply('Alerts blocked',false,true);return}apply(notifyEnabled?'Push Notifications Enabled':'Enable Push Notifications',notifyEnabled,false)}
       const subscribeWebPush=async()=>{if(!pushSupported())return false;const manager=windowPushManager();if(!manager)return false;const publicKey=await fetchPushConfig();if(!publicKey)return false;const permission=Notification.permission==='granted'? 'granted' : await Notification.requestPermission();if(permission!=='granted')return false;let subscription=await manager.getSubscription();if(!subscription){subscription=await manager.subscribe({userVisibleOnly:true,applicationServerKey:urlB64ToUint8Array(publicKey)})}const response=await fetch('/api/push/subscribe',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({subscription:subscription.toJSON()})});return response.ok}
       const unsubscribeWebPush=async()=>{const subscription=await getCurrentSubscription();if(!subscription)return true;await fetch('/api/push/unsubscribe',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({endpoint:subscription.endpoint})});await subscription.unsubscribe();return true}
 

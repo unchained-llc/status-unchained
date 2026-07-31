@@ -384,6 +384,24 @@
 .status-overview.has-stale-data .overview-dot{background:var(--warning);box-shadow:0 0 12px color-mix(in srgb,var(--warning),transparent 55%)}
 @media(max-width:38rem){.events-freshness{white-space:normal}}
 
+.status-page .page-heading-main{display:grid;gap:1.2rem;min-width:0;justify-items:start}
+.notify-toggle{display:inline-flex;align-items:center;justify-content:center;gap:.58rem;height:2.8rem;margin-top:1.4rem;padding:0 1.15rem;border:1px solid color-mix(in srgb,var(--accent),#fff 24%);border-radius:999px;background:transparent;color:color-mix(in srgb,var(--accent),white 8%);cursor:pointer;box-shadow:none;font-family:'Exo 2',system-ui,sans-serif;font-size:1.12rem;line-height:1;white-space:nowrap;appearance:none;-webkit-appearance:none;transition:transform .14s ease,filter .14s ease,opacity .14s ease,border-color .14s ease}
+.notify-toggle:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.05)}
+.notify-toggle:active:not(:disabled){transform:translateY(0);filter:brightness(.98)}
+.notify-toggle:focus-visible{outline:2px solid color-mix(in srgb,var(--accent),transparent 64%);outline-offset:2px;box-shadow:none}
+.notify-toggle .notify-toggle-icon{display:block;flex:0 0 auto;width:1.2em;height:1.2em;transform:none}
+.notify-toggle .notify-toggle-icon :is(path,circle,line){fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.notify-toggle .notify-toggle-icon .icon-check{display:none}
+.notify-toggle.is-enabled{background:transparent;color:color-mix(in srgb,var(--accent),white 8%);border-color:color-mix(in srgb,var(--accent),#fff 24%);box-shadow:none}
+.notify-toggle.is-enabled .notify-toggle-icon{width:1.32em;height:1.32em}
+.notify-toggle.is-enabled .notify-toggle-icon .icon-plus-v,
+.notify-toggle.is-enabled .notify-toggle-icon .icon-plus-h{display:none}
+.notify-toggle.is-enabled .notify-toggle-icon .icon-check{display:block;stroke-width:2.15}
+.notify-toggle-label{display:inline-flex;align-items:center;line-height:1}
+.notify-toggle:disabled{opacity:.52;cursor:not-allowed;filter:saturate(.65)}
+
+@media(max-width:38rem){.notify-toggle{height:2.32rem;padding:0 .82rem;font-size:.9rem}}
+
 /* service event badge (purple dot + count) */
 .status-page .service-headline{display:inline-flex;align-items:center;min-width:0}
 .status-page .service-headline h2{min-width:0}

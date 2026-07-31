@@ -148,10 +148,10 @@ Expected result should match production (`https://status.unchained.co.jp/api/che
 
 `/api/events.json` returns `checked_at` on each successful request.
 
-- UI freshness badge (`Synced` / `Delayed`) is based on `checked_at`
-- UI rerender decision for event payload changes uses `generated_at`
+- UI freshness badge (`Synced` / `Delayed`) is based on `generated_at`
+- UI rerender decision for event payload changes also uses `generated_at`
 
-This avoids false `Delayed` states after write-skip optimization.
+This keeps freshness and rerender decisions consistent with effective event-content updates.
 
 ## API Endpoints
 
@@ -251,7 +251,7 @@ After deployment or cache-sensitive changes:
    - `Synced · ... ago` updates continuously
    - no unexpected `Delayed` when API calls succeed
 5. Verify Declarative Web Push
-   - `Enable alerts` can subscribe successfully
+   - `Follow status` can subscribe successfully (`Following` after subscribe)
    - new status transition triggers a browser notification
    - iOS/iPadOS: test from Home Screen app (not Safari tab)
 
