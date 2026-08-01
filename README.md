@@ -1,7 +1,10 @@
 # UNCHAINED Status Page
 
+**English | [日本語](./README_ja.md)**
+
 Status page for `https://status.unchained.co.jp`.
-Built with Astro + Cloudflare Pages Functions, backed by updown.io and Cloudflare KV.
+Built with Astro + Cloudflare Pages Functions + Cloudflare Worker Cron.
+Monitoring source is **updown.io**.
 
 ## Screenshots
 
@@ -13,93 +16,195 @@ Built with Astro + Cloudflare Pages Functions, backed by updown.io and Cloudflar
 
 ![UNCHAINED Status Page in dark mode](./ScreenShot-Dark.png)
 
-## Overview
+---
 
-This project renders a 7-day status timeline per service and keeps data fresh via Cloudflare Cron Worker.
+## What this software does
 
-- Overall status summary (`Operational / Maintenance / Disruption`)
-- Per-service status rows with 7-day timeline
-- Timeline event details (maintenance / incident windows)
-- Relative freshness indicator (`Synced` / `Delayed`)
-- Localized date/time rendering in browser locale
-  - time range in local time
-  - timezone label (for example `JST`, `BST`, or `GMT+9` depending on browser)
-  - locale-aware date format
+This project is not only a static status page UI.
+It is a small status platform that:
 
-## Tech Stack
+- fetches check states from updown.io
+- enriches data into a 7-day service timeline
+- stores normalized snapshots/events in Cloudflare KV
+- serves same-origin status APIs from Pages Functions
+- delivers browser notifications through Declarative Web Push (no Service Worker registration)
+
+In short:
+
+- **Backend source of truth**: updown.io
+- **Edge cache + event memory**: Cloudflare KV (`STATUS_EVENTS`)
+- **API/UI delivery**: Cloudflare Pages Functions + Astro frontend
+- **Background refresh + push fan-out**: Cloudflare Worker Cron
+
+---
+
+## What it provides to end users
+
+- overall status summary (`Operational / Maintenance / Disruption`)
+- per-service rows with:
+  - live state
+  - 7-day uptime timeline
+  - event-aware timeline popovers
+- freshness indicator (`Synced` / `Delayed`)
+- push opt-in UI (`Enable Push Notifications` / `Push Notifications Enabled`)
+- browser notifications on status transitions
+
+---
+
+## Runtime architecture
+
+### 1) Data ingestion and enrichment
+
+`workers/status-events-cron.ts` runs every minute (`*/1 * * * *`):
+
+1. Refresh `status.snapshot.v1.json`
+   - source: updown.io `/api/checks`
+   - enrichment: `/metrics` + `/downtimes`
+   - output: checks + period uptime + 7-day history
+2. Refresh `events.json`
+   - source: updown.io `/api/checks`
+   - computes state transitions (`operational/maintenance/disruption`)
+   - keeps only recent events window
+3. If a new latest event exists, dispatch Declarative Web Push to subscribers
+
+### 2) KV documents
+
+- `status.snapshot.v1.json`
+  - `{ generated_at, checks[] }`
+  - optimized for fast UI list rendering
+- `events.json`
+  - `{ generated_at, events[], latest{} }`
+  - optimized for transition/event timeline behavior
+- `push:sub:<sha256(endpoint)>`
+  - stored browser push subscriptions
+- `push:last-event-id`
+  - de-dup guard for push fan-out
+
+### 3) API serving path
+
+Frontend calls same-origin APIs:
+
+- `GET /api/checks`
+  - returns KV snapshot first
+  - falls back to direct updown.io if snapshot missing
+- `GET /api/events.json`
+  - ensures freshness (`ensureFreshEventsDoc`)
+  - returns `checked_at` per response for UI freshness display
+- `GET /api/checks/{token}/downtimes`
+- `GET /api/checks/{token}/metrics?from=...&to=...`
+  - direct updown pass-through helpers (fallback/debug)
+
+### 4) Push subscription + delivery path
+
+Subscription APIs:
+
+- `GET /api/push/config`
+- `POST /api/push/subscribe`
+- `POST /api/push/unsubscribe`
+
+Delivery:
+
+- uses VAPID JWT + aes128gcm payload encryption in `functions/_lib/web-push.ts`
+- sends `web_push: 8030` Declarative payload
+- stale subscriptions (`404/410`) are auto-removed
+
+---
+
+## API endpoints
+
+| Method | Path | Purpose |
+|---|---|---|
+| GET | `/api/checks` | Snapshot-first checks list |
+| GET | `/api/events.json` | Events doc + `checked_at` |
+| GET | `/api/checks/{token}/downtimes` | Per-check downtime passthrough |
+| GET | `/api/checks/{token}/metrics` | Per-check metrics passthrough |
+| GET | `/api/push/config` | Push capability + VAPID public key |
+| POST | `/api/push/subscribe` | Store push subscription |
+| POST | `/api/push/unsubscribe` | Remove push subscription |
+
+---
+
+## Tech stack
 
 - Astro `^7.0.9`
 - TypeScript `^5.9.3`
 - Cloudflare Pages Functions
-- Cloudflare Workers (Cron trigger)
+- Cloudflare Workers (Cron)
 - Cloudflare KV (`STATUS_EVENTS`)
+- updown.io API
 - Node.js `>=22.12.0`
 
-## Requirements
+---
 
-- Node.js `>=22.12.0`
-- npm
-- updown.io API key
-- Cloudflare account (for Pages/Workers/KV deployment)
+## Environment and bindings
 
-## Environment Variables
+### Required secrets/vars
 
-Create `.env` for local Cloudflare dev:
+- `UPDOWN_API_KEY` (Pages + Worker)
+- `PUSH_VAPID_PRIVATE_KEY` (secret)
+- `PUSH_VAPID_PUBLIC_KEY` (plaintext var)
+- KV binding: `STATUS_EVENTS`
 
-```env
-UPDOWN_API_KEY=your_updown_api_key
+### Worker config
+
+`wrangler.events-cron.toml`:
+
+```toml
+name = "status-events-cron"
+main = "workers/status-events-cron.ts"
+
+[triggers]
+crons = ["*/1 * * * *"]
+
+[[kv_namespaces]]
+binding = "STATUS_EVENTS"
+id = "<namespace-id>"
+
+[vars]
+PUSH_VAPID_PUBLIC_KEY = "<public-vapid-key>"
 ```
 
-Used by Pages Functions and Worker to call updown.io.
+Set secrets:
 
-### Web Push configuration (Cloudflare)
+```bash
+npx wrangler secret put UPDOWN_API_KEY -c wrangler.events-cron.toml
+npx wrangler secret put PUSH_VAPID_PRIVATE_KEY -c wrangler.events-cron.toml
+```
 
-Set these in both Pages and Cron Worker runtime:
+---
 
-- `PUSH_VAPID_PUBLIC_KEY` (plaintext var, URL-safe base64)
-- `PUSH_VAPID_PRIVATE_KEY` (secret, URL-safe base64)
+## Local development
 
-
-This implementation uses Declarative Web Push (Safari `web_push: 8030` payload).
-No Service Worker registration is required for push delivery.
-
-## Setup
+Install:
 
 ```bash
 npm install
 ```
 
-## Development Commands
+Run commands:
 
 ```bash
 npm run dev          # Astro dev server
 npm run dev:ui       # UI dev server (http://localhost:4321)
-npm run dev:cf       # Pages Functions + KV proxy over dev:ui (http://localhost:8788)
-npm run dev:cf:dist  # Pages Functions + KV serving prebuilt dist only
+npm run dev:cf       # Pages Functions + KV proxy (http://localhost:8788)
+npm run dev:cf:dist  # Serve prebuilt dist via Pages dev
 npm run check        # Astro/TS checks
 npm run build        # Check + build
-npm run preview      # Preview build output
+npm run preview      # Preview build
 ```
 
-## Recommended Local Workflow
+Recommended workflow:
 
-Run these in parallel:
+1. `npm run dev:ui` for fast UI iteration
+2. `npm run dev:cf` for API/KV integrated behavior
 
-1. `npm run dev:ui` (fast UI iteration with HMR)
-2. `npm run dev:cf` (verify `/api/*`, KV behavior, and end-to-end page behavior)
+---
 
-Use:
+## Remote KV -> local KV sync (optional)
 
-- `http://localhost:4321` for UI/CSS iteration
-- `http://localhost:8788` for API/KV-integrated behavior
+Useful when local `dev:cf` data differs from production.
 
-`dev:cf:dist` is for static-dist verification and does not reflect source edits until rebuild.
-
-## Remote KV -> Local KV Sync (for `dev:cf`)
-
-When local data differs from production, sync KV snapshots explicitly.
-
-### 1) Export from remote KV namespace
+Export remote keys:
 
 ```bash
 mkdir -p debug-data/kv-sync
@@ -113,7 +218,7 @@ npx wrangler kv key get status.snapshot.v1.json \
   --remote --text > debug-data/kv-sync/status.snapshot.v1.remote.json
 ```
 
-### 2) Import into local KV used by `npm run dev:cf`
+Import into local binding:
 
 ```bash
 npx wrangler kv key put events.json \
@@ -127,149 +232,58 @@ npx wrangler kv key put status.snapshot.v1.json \
   --local --persist-to .wrangler/state
 ```
 
-### 3) Verify local API count
+---
 
-```bash
-curl -s http://localhost:8788/api/checks | grep -o '"token":' | wc -l
-```
+## Browser verification checklist
 
-Expected result should match production (`https://status.unchained.co.jp/api/checks`).
+After deploy or cache-sensitive changes:
 
-> Note: for local import, prefer `--namespace-id STATUS_EVENTS` to target the same local binding used by Pages dev. Using only the remote namespace UUID for local writes may target a different local store.
+1. hard reload the page
+2. verify timeline/date localization and popover interactions
+3. verify freshness badge updates (`Synced` / `Delayed`)
+4. verify push flow:
+   - subscribe from toggle
+   - trigger a real status transition
+   - confirm notification delivery
+5. for iOS/iPadOS push, verify from Home Screen app (not Safari tab)
 
-## Runtime Architecture
+---
 
-### Data flow
-
-1. Cron Worker fetches updown.io and refreshes KV snapshots
-2. Pages Functions read from KV (fallback to updown.io when needed)
-3. Browser fetches same-origin APIs (`/api/checks`, `/api/events.json`)
-
-### KV documents
-
-- `events.json`
-  - event history and per-token latest state
-  - includes `generated_at` (updated only when effective content changes)
-- `status.snapshot.v1.json`
-  - enriched checks with 7-day history + period uptime
-  - includes `generated_at` (updated only when checks payload changes)
-
-### Freshness semantics
-
-`/api/events.json` returns `checked_at` on each successful request.
-
-- UI freshness badge (`Synced` / `Delayed`) is based on `generated_at`
-- UI rerender decision for event payload changes also uses `generated_at`
-
-This keeps freshness and rerender decisions consistent with effective event-content updates.
-
-## API Endpoints
-
-- `GET /api/checks`
-  - Primary: returns KV snapshot (`status.snapshot.v1.json`)
-  - Fallback: direct updown.io `/api/checks`
-- `GET /api/events.json`
-  - Returns KV-backed events doc + `checked_at`
-  - Refreshes from updown when KV is stale
-- `GET /api/checks/{token}/downtimes`
-- `GET /api/checks/{token}/metrics?from=...&to=...`
-  - per-token endpoints are kept as fallback/debug paths
-- `GET /api/push/config`
-  - returns Web Push availability and VAPID public key
-- `POST /api/push/subscribe`
-  - stores browser push subscription
-- `POST /api/push/unsubscribe`
-  - removes browser push subscription
-
-## Cron Worker
-
-Worker files:
-
-- Entry: `workers/status-events-cron.ts`
-- Config: `wrangler.events-cron.toml`
-- Schedule: `*/1 * * * *` (every minute)
-
-Deploy Worker:
-
-Set plaintext vars in `wrangler.events-cron.toml`:
-
-```toml
-[vars]
-PUSH_VAPID_PUBLIC_KEY = "<your_public_vapid_key>"
-```
-
-Set secrets and deploy:
-
-```bash
-npx wrangler secret put UPDOWN_API_KEY -c wrangler.events-cron.toml
-npx wrangler secret put PUSH_VAPID_PRIVATE_KEY -c wrangler.events-cron.toml
-npx wrangler deploy -c wrangler.events-cron.toml
-```
-
-## Build Output
-
-- Output directory: `dist/`
-- Site setting: `astro.config.mjs` (`site: https://status.unchained.co.jp`)
-
-## Directory Structure
+## Project structure
 
 ```txt
 src/
   pages/
-    index.astro                 # Main page (SSR + client refresh logic)
+    index.astro
 public/
-  global.css                    # Global styles
-  favicon.svg
-  favicon.png
+  global.css
 functions/
   api/
-    checks.ts                   # Snapshot-first checks API
-    events.json.ts              # Events API (+ checked_at)
+    checks.ts
+    events.json.ts
     checks/[token]/
-      downtimes.ts              # Fallback per-check downtimes proxy
-      metrics.ts                # Fallback per-check metrics proxy
+      downtimes.ts
+      metrics.ts
     push/
-      config.ts                 # Push config endpoint
-      subscribe.ts              # Store push subscription
-      unsubscribe.ts            # Remove push subscription
+      config.ts
+      subscribe.ts
+      unsubscribe.ts
   _lib/
-    status-events.ts            # events.json refresh logic
-    status-snapshot.ts          # snapshot refresh logic
-    push-subscriptions.ts       # subscription KV helpers
-    web-push.ts                 # VAPID JWT + aes128gcm sender (Declarative payload)
+    updown.ts
+    status-events.ts
+    status-snapshot.ts
+    push-subscriptions.ts
+    web-push.ts
 workers/
-  status-events-cron.ts         # Scheduled refresh worker
+  status-events-cron.ts
 wrangler.events-cron.toml
-astro.config.mjs
-package.json
 ```
 
-## Browser Verification Checklist
-
-After deployment or cache-sensitive changes:
-
-1. Open status page and hard reload
-2. Verify time/date localization
-   - time is local (not fixed UTC)
-   - timezone label is shown in timeline times
-   - date format follows browser locale
-3. Verify event/timeline interactions
-   - badge tap/click open-close behavior
-   - outside click closes popups
-   - mobile Safari tap does not double-trigger
-4. Verify freshness badge
-   - `Synced · ... ago` updates continuously
-   - no unexpected `Delayed` when API calls succeed
-5. Verify Declarative Web Push
-   - `Follow status` can subscribe successfully (`Following` after subscribe)
-   - new status transition triggers a browser notification
-   - iOS/iPadOS: test from Home Screen app (not Safari tab)
+---
 
 ## Notes
 
-- GitHub Actions based status tracking was removed.
-- Production data refresh is managed by Cloudflare Pages + Cron Worker.
-- Browsers may render timezone names differently (`JST` vs `GMT+9`) based on Intl implementation.
-- iOS/iPadOS Safari requires Home Screen launch for Web Push permission.
-- Push dispatch is de-duplicated by `push:last-event-id` in KV.
-- For one-time resend testing, delete `push:last-event-id` in remote KV.
+- Push uses Declarative Web Push payload (`web_push: 8030`)
+- No Service Worker registration is required for delivery in this implementation
+- Push de-dup is managed by `push:last-event-id` in KV
+- To test one-time resend, remove `push:last-event-id` in remote KV
