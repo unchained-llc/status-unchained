@@ -3,6 +3,16 @@
 Status page for `https://status.unchained.co.jp`.
 Built with Astro + Cloudflare Pages Functions, backed by updown.io and Cloudflare KV.
 
+## Screenshots
+
+### Light mode
+
+![UNCHAINED Status Page in light mode](./ScreenShot-Light.png)
+
+### Dark mode
+
+![UNCHAINED Status Page in dark mode](./ScreenShot-Dark.png)
+
 ## Overview
 
 This project renders a 7-day status timeline per service and keeps data fresh via Cloudflare Cron Worker.
