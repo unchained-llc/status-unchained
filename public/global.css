@@ -260,7 +260,7 @@
 .status-page .history-wrap.has-history-card[data-active-marker="degraded"]::before{background:color-mix(in srgb,var(--status-degraded),transparent 22%)}
 .status-page .history-wrap.has-history-card[data-active-marker="outage"]::before{background:color-mix(in srgb,var(--status-outage),transparent 22%)}
 
-.status-page .history-card{width:min(500px,calc(100vw - 2rem));max-width:500px;min-width:320px;padding:8px 13px 12px;border:1px solid color-mix(in srgb,var(--line),transparent 14%);border-radius:14px;background:rgba(255,255,255,.90);backdrop-filter:blur(8px) saturate(105%);-webkit-backdrop-filter:blur(8px) saturate(105%);box-shadow:0 10px 24px rgba(18,28,53,.09),inset 0 1px 0 rgba(255,255,255,.42);top:calc(100% + .72rem);pointer-events:none}
+.status-page .history-card{width:min(500px,calc(100vw - 2rem));max-width:500px;min-width:320px;padding:8px 13px 20px;border:1px solid color-mix(in srgb,var(--line),transparent 14%);border-radius:14px;background:rgba(255,255,255,.90);backdrop-filter:blur(8px) saturate(105%);-webkit-backdrop-filter:blur(8px) saturate(105%);box-shadow:0 10px 24px rgba(18,28,53,.09),inset 0 1px 0 rgba(255,255,255,.42);top:calc(100% + .72rem);pointer-events:none}
 .status-page .history-wrap.is-locked .history-card{pointer-events:auto}
 @media(prefers-color-scheme:dark){.status-page .history-card{background:rgba(12,16,24,.86);box-shadow:0 10px 26px rgba(0,0,0,.34),inset 0 1px 0 rgba(255,255,255,.10)}}
 .status-page .history-card::before{display:none}
@@ -294,7 +294,7 @@
 .status-page .history-dayline-labels span:nth-child(3){left:50%}
 .status-page .history-dayline-labels span:nth-child(4){left:75%}
 .status-page .history-dayline-labels span:nth-child(5){left:100%;transform:translateX(-100%)}
-.status-page .history-dayline-rail{position:relative;height:10px;margin-top:2px;margin-bottom:22px}
+.status-page .history-dayline-rail{position:relative;height:10px;margin-top:2px;margin-bottom:34px}
 .status-page .history-dayline-rail::before{content:'';position:absolute;left:0;right:0;top:3px;height:1px;border-radius:999px;background:rgba(255,255,255,.36)}
 .status-page .history-dayline-base{position:absolute;left:0;right:0;top:4px;height:1.5px;border-radius:999px;background:color-mix(in srgb,var(--line),transparent 34%)}
 .status-page .history-dayline-progress{position:absolute;left:0;top:3px;height:3px;border-radius:999px;background:var(--status-operational)}
@@ -304,7 +304,7 @@
 .status-page .history-dayline-highlight.is-degraded{background:var(--status-outage)}
 .status-page .history-dayline-highlight.is-outage{background:var(--status-outage)}
 .status-page .history-dayline-rail.is-today::after{content:'';position:absolute;left:var(--now-pct,100%);right:0;top:3px;height:3px;border-radius:999px;background:color-mix(in srgb,var(--line),transparent 18%);z-index:1}
-.status-page .history-dayline-now{position:absolute;top:50%;transform:translate(-50%,-50%);z-index:2;pointer-events:none}
+.status-page .history-dayline-now{position:absolute;top:50%;transform:translate(-50%,-50%);z-index:4;pointer-events:none}
 .status-page .history-dayline-now .dot{display:block;width:.86rem;height:.86rem;border-radius:50%;background:rgba(255,255,255,.96);border:2px solid color-mix(in srgb,var(--status-operational),white 20%);box-shadow:0 0 0 1px color-mix(in srgb,var(--line),transparent 30%),0 0 8px color-mix(in srgb,var(--status-operational),transparent 64%);animation:now-soft-breathe 2.4s ease-in-out infinite}
 .status-page .history-dayline-now .stem{position:absolute;left:50%;top:100%;width:1px;height:14px;transform:translateX(-50%);background:color-mix(in srgb,var(--status-operational),transparent 22%)}
 @keyframes now-soft-breathe{0%,100%{transform:scale(1);opacity:.9}50%{transform:scale(1.05);opacity:1}}
@@ -315,6 +315,18 @@
 .status-page .history-dayline-now.is-outage .dot{border-color:color-mix(in srgb,var(--status-outage),white 20%);box-shadow:0 0 0 1px color-mix(in srgb,var(--line),transparent 30%),0 0 10px color-mix(in srgb,var(--status-outage),transparent 60%)}
 .status-page .history-dayline-now.is-outage .stem{background:color-mix(in srgb,var(--status-outage),transparent 20%)}
 .status-page .history-dayline-now.is-outage .label{color:color-mix(in srgb,var(--status-outage),var(--text) 35%)}
+
+.status-page .history-dayline-event-marker{position:absolute;left:50%;top:1.5px;transform:translateX(-50%);z-index:2;pointer-events:none;--label-lift:0px}
+.status-page .history-dayline-event-marker .dot{display:none}
+.status-page .history-dayline-event-marker .stem{position:absolute;left:50%;top:0;z-index:1;width:1px;height:calc(10px + var(--label-lift));transform:translateX(-50%);background:color-mix(in srgb,var(--status-maintenance),transparent 30%)}
+.status-page .history-dayline-event-marker .label{position:absolute;left:50%;top:calc(14px + var(--label-lift));transform:translateX(-50%);min-width:4ch;text-align:center;font-size:10px;font-weight:600;color:var(--status-maintenance);font-variant-numeric:tabular-nums;white-space:nowrap}
+.status-page .history-dayline-event-marker.is-degraded .dot,
+.status-page .history-dayline-event-marker.is-outage .dot{border-color:color-mix(in srgb,var(--status-outage),white 22%);box-shadow:0 0 0 1px color-mix(in srgb,var(--line),transparent 36%),0 0 8px color-mix(in srgb,var(--status-outage),transparent 70%)}
+.status-page .history-dayline-event-marker.is-degraded .stem,
+.status-page .history-dayline-event-marker.is-outage .stem{background:color-mix(in srgb,var(--status-outage),transparent 28%)}
+.status-page .history-dayline-event-marker.is-degraded .label,
+.status-page .history-dayline-event-marker.is-outage .label{color:var(--status-outage)}
+.status-page .history-dayline-event-marker.is-near-now .label{display:none}
 
 .status-page .history-dayline-legend,
 .status-page .history-card-right,
