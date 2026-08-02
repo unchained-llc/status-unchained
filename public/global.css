@@ -217,38 +217,16 @@
 .status-page .history-day:hover .history-marker,
 .status-page .history-day:focus-visible .history-marker,
 .status-page .history-day.is-active .history-marker{opacity:1;transform:translate(-50%,-50%) scale(1.04)}
-.status-page .history-day:nth-child(7){box-shadow:0 0 8px color-mix(in srgb,var(--success),transparent 50%),0 0 14px color-mix(in srgb,var(--success),transparent 70%)}
-.status-page .history-day.had-downtime:nth-child(7){box-shadow:0 0 10px color-mix(in srgb,var(--status-outage),transparent 42%),0 0 18px color-mix(in srgb,var(--status-outage),transparent 64%)}
-
-/* today LED follows live status, not historical marker */
-.status-page .service-row.is-up .history-day:nth-child(7){background:color-mix(in srgb,var(--success),white 24%)!important;filter:brightness(1.1)!important;box-shadow:0 0 6px color-mix(in srgb,var(--success),transparent 58%),0 0 10px color-mix(in srgb,var(--success),transparent 78%)!important}
-
-.status-page .service-row.is-maintenance .history-day:nth-child(7){background:var(--status-maintenance)!important;opacity:.74;animation:maintenance-soft 2s ease-in-out infinite!important;box-shadow:0 0 6px color-mix(in srgb,var(--status-maintenance),transparent 58%),0 0 10px color-mix(in srgb,var(--status-maintenance),transparent 78%)!important}
-.status-page .service-row.is-down .history-day:nth-child(7){background:var(--status-outage)!important;opacity:1;animation:outage-alert 1s steps(1,end) infinite!important;box-shadow:0 0 10px color-mix(in srgb,var(--status-outage),transparent 42%),0 0 18px color-mix(in srgb,var(--status-outage),transparent 64%)!important}
-@keyframes meter-soft{0%{opacity:.58;filter:brightness(.94)}8%{opacity:.58;filter:brightness(1.08)}14%{opacity:.58;filter:brightness(.9)}22%{opacity:.58;filter:brightness(1.12)}31%{opacity:.58;filter:brightness(.92)}39%{opacity:.58;filter:brightness(1.1)}48%{opacity:.58;filter:brightness(.89)}57%{opacity:.58;filter:brightness(1.13)}66%{opacity:.58;filter:brightness(.91)}75%{opacity:.58;filter:brightness(1.09)}85%{opacity:.58;filter:brightness(.93)}92%{opacity:.58;filter:brightness(1.06)}100%{opacity:.58;filter:brightness(.94)}}
+/* Keep the live LED and the hover marker on independent layers. */
+.status-page .history-led{display:none;pointer-events:none}
+.status-page .history-day:nth-child(7){background:transparent!important;box-shadow:none!important;opacity:1!important;filter:none!important;animation:none!important}
+.status-page .history-day:nth-child(7) .history-led{position:absolute;inset:0;z-index:0;display:block;border-radius:inherit;background:color-mix(in srgb,var(--success),white 24%);box-shadow:none;animation:led-access var(--today-led-duration,500ms) steps(1,end) infinite;animation-delay:var(--today-led-delay,0ms)}
+.status-page .service-row.is-up .history-day:nth-child(7) .history-led{filter:brightness(1.1)}
+.status-page .service-row.is-maintenance .history-day:nth-child(7) .history-led{background:var(--status-maintenance);box-shadow:0 0 2px color-mix(in srgb,var(--status-maintenance),transparent 55%);animation:maintenance-soft 2s ease-in-out infinite;animation-delay:var(--today-led-delay,0ms)}
+.status-page .service-row.is-down .history-day:nth-child(7) .history-led{background:var(--status-outage);box-shadow:0 0 3px color-mix(in srgb,var(--status-outage),transparent 48%);animation:outage-alert 1s steps(1,end) infinite;animation-delay:var(--today-led-delay,0ms)}
+@keyframes led-access{0%,18%{opacity:1}19%,27%{opacity:0}28%,36%{opacity:1}37%,45%{opacity:0}46%,65%{opacity:1}66%,72%{opacity:0}73%,79%{opacity:1}80%,86%{opacity:0}87%,100%{opacity:1}}
 @keyframes maintenance-soft{0%,100%{opacity:0}50%{opacity:.74}}
 @keyframes outage-alert{0%,49%{opacity:1}50%,100%{opacity:0}}
-
-/* keep LED blinking while marker stays steady */
-.status-page .history-day:nth-child(7){--today-led-animation:meter-random .5s steps(1,end) infinite;animation:var(--today-led-animation)!important}
-.status-page .service-row:not([data-token="2w7e"]) .history-day:nth-child(7){animation-delay:var(--today-led-delay,0ms)!important}
-.status-page .service-row[data-token="2w7e"].is-up .history-day:nth-child(7){animation:meter-random .5s steps(1,end) infinite!important;animation-delay:0ms!important}
-.status-page .service-row.is-maintenance .history-day:nth-child(7){--today-led-animation:maintenance-soft 2s ease-in-out infinite}
-.status-page .service-row.is-down .history-day:nth-child(7){--today-led-animation:outage-alert 1s steps(1,end) infinite}
-.status-page .history-day:nth-child(7):hover,
-.status-page .history-day:nth-child(7):focus-visible,
-.status-page .history-day:nth-child(7).is-active{animation:var(--today-led-animation)!important}
-
-/* outage時は hover/focus で赤を薄く見せない */
-.status-page .service-row.is-down .history-day:nth-child(7):hover,
-.status-page .service-row.is-down .history-day:nth-child(7):focus-visible,
-.status-page .service-row.is-down .history-day:nth-child(7).is-active{animation:none!important;opacity:1!important;filter:none!important}
-
-/* Keep the active-day LED fixed while the card is open so the marker remains easy to track */
-.status-page .history-wrap.has-history-card .history-day.is-active{animation:none!important}
-.status-page .service-row.is-up .history-wrap.has-history-card .history-day.is-active:nth-child(7){opacity:.58!important}
-.status-page .service-row.is-maintenance .history-wrap.has-history-card .history-day.is-active:nth-child(7){opacity:.74!important}
-.status-page .service-row.is-down .history-wrap.has-history-card .history-day.is-active:nth-child(7){opacity:1!important}
 
 /* marker color follows LIVE LED state on today slot (7th) */
 .status-page .service-row.is-up .history-day:nth-child(7) .history-marker{background:var(--status-operational)!important;box-shadow:0 0 0 1px color-mix(in srgb,var(--line),transparent 25%),0 0 0 10px color-mix(in srgb,var(--status-operational),transparent 82%)!important}
@@ -385,9 +363,9 @@
 :root.theme-dark .history-card,
 :root.theme-dark .status-page .history-card{background:rgba(12,16,24,.9)!important;box-shadow:0 10px 26px rgba(0,0,0,.34)!important}
 
-/* Light mode: make Today operational LED less washed out on white background */
-:root.theme-light .status-page .service-row.is-up .history-day:nth-child(7){box-shadow:0 0 10px color-mix(in srgb,var(--status-operational),transparent 42%),0 0 20px color-mix(in srgb,var(--status-operational),transparent 62%)!important}
-@media(prefers-color-scheme:light){:root:not(.theme-dark) .status-page .service-row.is-up .history-day:nth-child(7){box-shadow:0 0 10px color-mix(in srgb,var(--status-operational),transparent 42%),0 0 20px color-mix(in srgb,var(--status-operational),transparent 62%)!important}}
+/* Keep the light-mode glow on the animated LED layer so it disappears with the LED. */
+:root.theme-light .status-page .service-row.is-up .history-day:nth-child(7) .history-led{box-shadow:0 0 10px color-mix(in srgb,var(--status-operational),transparent 42%),0 0 20px color-mix(in srgb,var(--status-operational),transparent 62%)}
+@media(prefers-color-scheme:light){:root:not(.theme-dark) .status-page .service-row.is-up .history-day:nth-child(7) .history-led{box-shadow:0 0 10px color-mix(in srgb,var(--status-operational),transparent 42%),0 0 20px color-mix(in srgb,var(--status-operational),transparent 62%)}}
 
 /* Events freshness indicator */
 .events-freshness{font-size:.66rem;line-height:1.2;white-space:nowrap;color:var(--muted)}
