@@ -252,7 +252,7 @@
 .status-page .history-card-line{display:grid!important;grid-template-columns:minmax(0,1fr);align-items:start;gap:.5rem;min-width:0}
 .status-page .history-card-left{display:grid;grid-template-columns:.82rem minmax(0,1fr);align-items:start;gap:.56rem;min-width:0}
 .status-page .history-card-copy{min-width:0}
-.status-page .history-card-summary{margin:0;display:grid;grid-template-columns:minmax(0,1fr) 15ch 6ch;align-items:baseline;column-gap:.55rem;font-size:13px;font-weight:300;line-height:1.2;color:var(--text)}
+.status-page .history-card-summary{margin:0;display:grid;grid-template-columns:minmax(0,1fr) 15ch max-content;align-items:baseline;column-gap:.55rem;font-size:13px;font-weight:300;line-height:1.2;color:var(--text)}
 .status-page .history-card-summary-title{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:200}
 .status-page .history-card-summary-time{font-size:13px;font-weight:400;line-height:1.22;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap;text-align:left}
 .status-page .history-card-duration{font-size:13px;font-weight:500;color:color-mix(in srgb,var(--text),transparent 26%);font-variant-numeric:tabular-nums;white-space:nowrap;text-align:left}
